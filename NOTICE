@@ -1,0 +1,6 @@
+domain.md
+Copyright 2026 IXO World
+
+This project is an original IXO implementation. Its repository and product structure were inspired by
+Google's DESIGN.md project (https://github.com/google-labs-code/design.md), licensed under the Apache
+License 2.0. No Google domain-specific implementation code is included in this repository.

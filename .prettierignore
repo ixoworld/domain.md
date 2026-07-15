@@ -1,0 +1,7 @@
+docs/spec.md
+spec/spec.mdx
+spec/*.schema.json
+packages/cli/assets/
+examples/
+LICENSE
+package-lock.json

@@ -1,0 +1,13 @@
+version: '1.0.0-rc.1'
+kind: 'domain.md/template-manifest'
+protocol: 'did:ixo:entity:protocol:verified-services'
+protocol_version: '1.0.0'
+bundles:
+  - derived_type: 'project'
+    bundle_version: '1.0.0'
+    files:
+      - role: 'domain.md'
+        path: '../domain.md.tmpl'
+        media_type: 'text/markdown'
+        sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+        required: true

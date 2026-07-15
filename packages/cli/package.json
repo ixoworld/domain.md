@@ -1,0 +1,86 @@
+{
+  "name": "@ixo/domain.md",
+  "version": "0.1.0",
+  "description": "Authority-aware domain.md specification, validator, authoring library, and CLI",
+  "license": "Apache-2.0",
+  "type": "module",
+  "private": false,
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ixoworld/domain.md.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/ixoworld/domain.md/issues"
+  },
+  "homepage": "https://github.com/ixoworld/domain.md#readme",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "keywords": [
+    "domain.md",
+    "ixo",
+    "ai-agents",
+    "did",
+    "governance",
+    "validation"
+  ],
+  "bin": {
+    "domain.md": "./dist/cli.js",
+    "domainmd": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./spec": {
+      "types": "./dist/spec.d.ts",
+      "import": "./dist/spec.js"
+    },
+    "./templates": {
+      "types": "./dist/templates/index.d.ts",
+      "import": "./dist/templates/index.js"
+    }
+  },
+  "files": [
+    "assets",
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test tsup.config.ts vitest.config.ts",
+    "package:check": "npm pack --dry-run --json"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "citty": "0.2.2",
+    "ipaddr.js": "2.4.0",
+    "multiformats": "14.0.4",
+    "remark-frontmatter": "5.0.0",
+    "remark-parse": "11.0.0",
+    "unified": "11.0.5",
+    "unist-util-visit": "5.1.0",
+    "yaml": "2.9.0"
+  },
+  "devDependencies": {
+    "@types/mdast": "4.0.4",
+    "@vitest/coverage-v8": "4.1.10",
+    "tsup": "8.5.1",
+    "vitest": "4.1.10"
+  }
+}

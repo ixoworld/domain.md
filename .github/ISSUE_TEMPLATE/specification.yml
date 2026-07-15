@@ -1,0 +1,23 @@
+name: Specification proposal
+description: Propose a normative domain.md change
+title: 'spec: '
+labels: [specification]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+    validations:
+      required: true
+  - type: textarea
+    id: normative
+    attributes:
+      label: Proposed normative change
+      description: Include schema, semantic rule, compatibility, security, and migration effects.
+    validations:
+      required: true
+  - type: textarea
+    id: interoperability
+    attributes:
+      label: Interoperability evidence
+      description: Describe fixtures or independent implementations that can verify the proposal.

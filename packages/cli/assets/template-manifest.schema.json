@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ixo:domain-md:template-manifest-schema:1.0.0-rc.1",
+  "title": "domain.md protocol template manifest",
+  "type": "object",
+  "required": ["version", "kind", "protocol", "protocol_version", "bundles"],
+  "properties": {
+    "version": { "const": "1.0.0-rc.1" },
+    "kind": { "const": "domain.md/template-manifest" },
+    "protocol": { "type": "string", "pattern": "^did:[a-z0-9]+:[^\\s]+$" },
+    "protocol_version": { "type": "string", "minLength": 1 },
+    "bundles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["derived_type", "bundle_version", "files"],
+        "properties": {
+          "derived_type": {
+            "enum": ["dao", "organisation", "project", "asset", "deed", "investment", "oracle", "service", "dataset", "device", "place", "portfolio", "marketplace", "pod", "claim_collection", "custom"]
+          },
+          "bundle_version": { "type": "string", "minLength": 1 },
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["role", "path", "media_type", "max_bytes", "required"],
+              "properties": {
+                "role": {
+                  "enum": ["domain.md", "description", "changelog", "manifest", "playbook", "schema", "resource", "policy", "supporting"]
+                },
+                "path": {
+                  "type": "string",
+                  "pattern": "^templates/[a-z0-9][a-z0-9_-]*/(?:[a-zA-Z0-9._-]+/)*[a-zA-Z0-9._-]+\\.tmpl$"
+                },
+                "media_type": { "enum": ["text/markdown", "application/yaml", "application/json", "text/plain"] },
+                "max_bytes": { "type": "integer", "minimum": 1, "maximum": 2097152 },
+                "uri": { "type": "string", "pattern": "^(https|ipfs)://[^\\s]+$" },
+                "cid": { "type": ["string", "null"], "pattern": "^b[a-z2-7]{10,}$" },
+                "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+                "required": { "type": "boolean" }
+              },
+              "anyOf": [
+                { "required": ["cid"], "properties": { "cid": { "type": "string" } } },
+                { "required": ["sha256"], "properties": { "sha256": { "type": "string" } } }
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,38 @@
+{
+  "name": "domain-md-monorepo",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "packageManager": "npm@11.11.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @ixo/domain.md",
+    "test": "npm run test --workspace @ixo/domain.md",
+    "test:coverage": "npm run test:coverage --workspace @ixo/domain.md",
+    "typecheck": "tsc --noEmit -p tsconfig.json && npm run typecheck --workspace @ixo/domain.md",
+    "lint": "eslint scripts spec && npm run lint --workspace @ixo/domain.md",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "spec:generate": "tsx scripts/generate-spec.ts",
+    "spec:check": "tsx scripts/generate-spec.ts --check",
+    "examples:check": "tsx scripts/check-examples.ts",
+    "package:check": "npm run package:check --workspace @ixo/domain.md",
+    "package:smoke": "tsx scripts/package-smoke.ts",
+    "ci": "npm run format:check && npm run lint && npm run typecheck && npm run spec:check && npm run test:coverage && npm run build && npm run examples:check && npm run package:check && npm run package:smoke"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "@types/node": "24.10.0",
+    "eslint": "9.39.2",
+    "prettier": "3.9.5",
+    "tsx": "4.23.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.64.0"
+  },
+  "engines": {
+    "node": ">=20.10.0",
+    "npm": ">=10"
+  }
+}
