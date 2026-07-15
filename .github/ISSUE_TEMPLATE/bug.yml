@@ -1,0 +1,31 @@
+name: Bug report
+description: Report a reproducible validator, CLI, renderer, or documentation defect
+title: 'bug: '
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Package version, specification version, Node.js version, and operating system
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Redact secrets, personal data, private evidence, and authority-bearing proofs.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Findings or CLI output
+      render: shell
