@@ -2,10 +2,11 @@ import { execFile as execFileCallback } from 'node:child_process';
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 const execFile = promisify(execFileCallback);
-const root = resolve(import.meta.dirname, '..');
+const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const npmCli = (() => {
   const value = process.env.npm_execpath;
   if (!value) throw new Error('npm_execpath is required; run this smoke test through npm.');
