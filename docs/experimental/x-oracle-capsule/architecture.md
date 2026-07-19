@@ -43,7 +43,9 @@ The capsule is not a monolithic mutable workspace. Its package boundaries are:
 - **Runtime state:** memory, traces, receipts, Flow state, evidence, credentials, and secrets are never part of the release package.
 - **Host adapter:** host-specific transport and presentation code. It may narrow behavior but MUST NOT reinterpret the portable contract, add authority, or weaken a kernel invariant.
 
-The manifest and artifact locks use deterministic JSON serialization for generated hashes and signatures: UTF-8 JSON with object keys sorted by Unicode code unit, arrays kept in declared order, no insignificant whitespace, and numbers restricted to safe integers. The authoritative content address still covers the exact published bytes. The companion schema will make unsafe numeric or ambiguous values invalid.
+The manifest, artifact locks, runtime attestations and receipts use RFC 8785 JSON Canonicalization Scheme (JCS) for generated hashes and signatures. Inputs must be I-JSON compatible: UTF-8, no duplicate object names or lone surrogate code points, no non-finite numbers, and no integers outside the interoperable safe-integer range. Arrays keep their declared order. Implementations must pass shared cross-language golden vectors before they can claim conformance. The authoritative content address still covers the exact published bytes, not a reserialization of fetched content.
+
+The reviewed portable contract is always identified by repository, commit and exact decision/threat-model file digests in the consuming runtime ADR and capsule release provenance. A branch name, mutable URL, schema URI or package version alone is not sufficient review identity.
 
 ## `domain.md` binding
 
@@ -91,30 +93,45 @@ Every security-relevant fact has one owning artifact and one primary enforcement
 | Evidence bytes, disclosure, consent and decryption rights                                  | Canonical evidence store plus subject policy and live grants    | Evidence adapter before disclosure                   |
 | Human review or pilot authorization                                                        | Signed approval record from the named authority                 | Runtime review gate                                  |
 | Signing or value movement                                                                  | External signer plus live authorization                         | Signer adapter; never the model host                 |
+| Runtime distribution, kernel and adapter identity                                          | Signed distribution attestation plus verifier trust policy      | Host bootstrap verifier before kernel execution      |
+| Receipt signing identity, key state and verification policy                                | Receipt signer DID/key registry and revocation state            | External receipt verifier                            |
+| Outbound destination and permitted disclosed fields                                        | Subject policy, live grant and runtime egress policy            | Egress/disclosure gate immediately before I/O        |
 | Run inputs, policy/source pins, tool results, outputs and decisions                        | Runtime trace and receipt ledger                                | Runtime recorder and receipt verifier                |
 | Prompt and transient model output                                                          | Model host session                                              | No authority; input/output filter only               |
 | Durable memory                                                                             | Runtime memory store under class policy                         | Memory adapter                                       |
 
 If two artifacts appear to own the same fact, resolution stops. The runtime applies the existing fact-scoped `source_of_truth.authority_scopes`; it never invents precedence from document order or model confidence.
 
+## Runtime and receipt trust roots
+
+The runtime kernel is trusted only after an out-of-bundle bootstrap verifier validates a signed distribution attestation. The attestation binds the source repository and commit, reproducible build identity, capsule command contract, supported contract versions, kernel and adapter digests, and distribution issuer. Trust anchors are configured independently of the installed bundle and identify an issuer DID and verification method. Key rotation and revocation follow canonical DID/IID or other explicitly approved registry state; an unavailable or ambiguous trust root fails closed.
+
+Generated provenance inside the same writable installation is descriptive evidence, not a trust root. Installed Codex, Claude, CLI and MCP artifacts must be verified against the same attestation before use. The active kernel, executable adapters and policy files are read-only after bootstrap and are rechecked at security-relevant boundaries. An integrity mismatch interrupts the run and cannot produce a success receipt.
+
+Every receipt signature identifies its signer DID, verification method, algorithm, signed-at trusted time, signature purpose, authority mode and revocation-verdict reference. Receipt verification is performed independently of the run that created it and also verifies the distribution attestation, source pins and receipt-key status. A development signer or self-generated local key may produce explicitly development-scoped evidence, but it cannot satisfy a production receipt policy.
+
 ## Minimal immutable host kernel
 
 Only the following invariants are kernel responsibilities. They cannot be delegated to, overridden by, or rewritten by the Master skill:
 
-1. Load the Oracle identity document and validate its declared conformance profile without downgrade.
-2. Resolve the companion manifest and every artifact through allowlisted schemes with path, redirect, size, decompression, and network-boundary controls; verify both CID and SHA-256 before parsing or execution.
-3. Enforce one immutable Master skill and refuse extra, missing, transformed, or unlocked executable files.
-4. Compute the effective operating ceiling as the intersection of the identity document, capsule constraints, run authorization, live capabilities, subject-domain policy, and runtime policy. Missing, stale, conflicting, or unverifiable authority means denial.
-5. Expose only tools named by the verified manifest and allowed by the effective ceiling. Re-check audience, action, object, nonce, time, revocation, and value limits immediately before every invocation.
-6. Keep resolution, authority, state, signing, secrets, disclosure control, and receipt generation outside the model context.
-7. Separate the four memory classes below and prohibit writes that cross class, workspace, subject, or run boundaries.
-8. Record a hash-chained, secret-redacted trace and a verifiable run receipt bound to all source, policy, authority, tool, input, output, and human-review references needed for replay.
-9. Require the named human review when policy demands it; stop rather than translate a recommendation into a protected effect.
-10. Reject runtime self-modification. A run cannot change its identity document, manifest, Master artifact, kernel, policy, source pins, tool contracts, or receipt history.
+1. Verify the signed runtime distribution attestation and kernel/adapter digests using trust anchors held outside the installed bundle.
+2. Load the Oracle identity document and validate its declared conformance profile without downgrade.
+3. Resolve the companion manifest and every artifact through allowlisted schemes with path, redirect, size, decompression, and network-boundary controls; verify both CID and SHA-256 before parsing or execution.
+4. Enforce one immutable Master skill and refuse extra, missing, transformed, or unlocked executable files.
+5. Compute the effective operating ceiling as the intersection of the identity document, capsule constraints, run authorization, live capabilities, subject-domain policy, and runtime policy. Missing, stale, conflicting, or unverifiable authority means denial.
+6. Expose only tools named by the verified manifest and allowed by the effective ceiling. Re-check audience, action, object, nonce, time, revocation, value limits, outbound destination and disclosed fields immediately before every invocation.
+7. Apply structured output projection, destination allowlists, field- and value-level secret detection, sensitivity policy and byte budgets before any model or adapter output crosses an egress boundary.
+8. Keep resolution, authority, state, signing, secrets, disclosure control, and receipt generation outside the model context.
+9. Separate the four memory classes below and prohibit writes that cross class, workspace, subject, purpose, or run boundaries.
+10. Record a hash-chained, secret-redacted trace and a verifiable signed run receipt bound to all source, policy, authority, tool, input, output, human-review, distribution and signer references needed for replay.
+11. Require the named human review when policy demands it; stop rather than translate a recommendation into a protected effect.
+12. Reject runtime self-modification. A run cannot change its identity document, manifest, Master artifact, kernel, policy, source pins, tool contracts, trust roots, or receipt history.
 
 The Master skill may orchestrate reasoning, normalization, evaluation, explanation, routing, and calls to exposed tools. It may not decide what is authoritative, activate tools, read secrets directly, suppress receipts, approve its own protected output, or change any kernel invariant.
 
 The base prompt is presentation and task context only. Prompt text has lower authority than protocol state, the Oracle and subject domain documents, the manifest, runtime policy, and live capability decisions. Prompt injection is treated as untrusted data, including when it appears inside evidence or retrieved resources.
+
+Every authority, capability, human-review and activation record persists the authority mode, issuer, subject, action, object, audience, proof/assertion digest, trusted-time source and instant, nonce or replay identifier, revocation provider, verdict and checked-at time. An opaque proof reference alone is insufficient. Development-mode records are structurally distinguishable and are rejected by production policy rather than interpreted through naming conventions.
 
 ## Static and runtime conformance
 
@@ -123,6 +140,8 @@ Static and runtime conformance are separate verdicts.
 **Static conformance** validates local structure and internally checkable integrity: extension and manifest schemas, declared versions, URI/CID/digest syntax, semantic references, one Master entry, lock completeness, duplicate or unsafe paths, declared ceilings, compatibility declarations, and changes that require security review. Static success does not prove that a URI resolves, a CID is current in canonical state, a capability is unrevoked, a clock is trusted, evidence may be disclosed, or a signer will authorize an action.
 
 **Runtime conformance** resolves and verifies the exact bytes, current IID/DID and subject state, capability chain and revocation, trusted time, Flow state, evidence access and consent, human approvals, tool contract, trace chain, receipt signature, and replay inputs. A runtime verdict is scoped to a named release, run authorization, subject, time, and source set. It expires when any live dependency or authorization does.
+
+Runtime conformance also verifies the signed runtime distribution and receipt-signing trust chain. Static conformance cannot establish that the installed kernel or current receipt key is trusted.
 
 The runtime MUST emit both verdicts and MUST NOT report the capsule as executable when either is missing or failed.
 
@@ -152,6 +171,8 @@ The runtime exposes four non-overlapping classes. The model receives only the mi
 
 Raw secrets, private keys, decrypted evidence beyond authorized retention, and hidden chain-of-thought are prohibited in all four classes. A Master skill cannot change class policy, retention, encryption, access, or deletion rules.
 
+Persistent classes use encryption at rest with keys scoped at least by environment, workspace and subject, and with separate derivation or access policy for audit records. Key identifiers and encryption-policy versions are receipt-bound; keys never enter model context. Retention expiry, deletion authorization, legal hold, backup coverage, key rotation and cryptographic erasure are explicit state transitions. A missing key policy, cross-scope key request, failed deletion proof or unavailable retention decision blocks the affected write or resume.
+
 ## Shadow-pilot risk ceiling
 
 The first pilot is a development-authority, shadow evaluation of the Livelihoods Contract Verification Oracle. It is advisory only.
@@ -177,6 +198,9 @@ The following launch inputs remain intentionally unresolved and block pilot pack
 | Approved rubric version, disqualifiers and reason codes             | Methodology/rubric owner                 | IXO-3760, IXO-3761                   |
 | Independent Evaluation Owner and human reviewer identities          | Pilot authority owner                    | IXO-3760, IXO-3761                   |
 | Development authority issuer, trusted clock and revocation provider | Runtime/security owner                   | IXO-3756, IXO-3760                   |
+| Distribution attestation issuer and bootstrap trust anchors         | Runtime/security and release owners      | IXO-3755, IXO-3757, IXO-3759         |
+| Receipt signer, key registry, rotation and revocation policy        | Runtime/security and audit owners        | IXO-3758, IXO-3759                   |
+| Memory encryption/KMS, retention and deletion-control owner         | Runtime/security and data controller     | IXO-3758, IXO-3760                   |
 | Production signer/AuthZ design and endpoint                         | Runtime/security owner                   | Production use; not the shadow pilot |
 
 No unresolved decision in this table changes the field ownership, media type, schema identity, package boundary, hashing, versioning, or revocation semantics needed to draft the companion schema.
@@ -186,6 +210,7 @@ No unresolved decision in this table changes the field ownership, media type, sc
 - IXO-3753 may draft the extension and manifest schemas, validator rules, source lock, positive fixtures, and negative security fixtures only after this decision and the threat model receive independent review.
 - IXO-3754 may classify changes to `x-oracle-capsule` as security-sensitive despite the base specification's informational default for generic `x-*` fields.
 - IXO-3755 through IXO-3758 implement resolution, kernel bootstrap, capability enforcement, memory, trace, receipt, and replay against this contract; they do not move portable authority into `qi-runtimes`.
+- Runtime implementation is not conformant until signed distribution bootstrap, egress/disclosure enforcement, authority-evidence persistence, encrypted classed memory and independent receipt verification are negative-tested.
 - IXO-3759 proves cross-repository and installed-host conformance. Green CI alone is not a runtime or pilot-readiness verdict.
 - IXO-3760 and IXO-3761 remain blocked until the pilot launch inputs above are explicitly approved and recorded.
 - Standardization into a normative Oracle profile is deferred to IXO-3762 and requires evidence from the shadow pilot and audit.
