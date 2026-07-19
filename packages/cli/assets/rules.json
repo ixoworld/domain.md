@@ -130,6 +130,101 @@
       "code": "runtime-external-checks-required",
       "severity": "info",
       "description": "Identify checks that static validation cannot prove for anchored and runtime profiles."
+    },
+    {
+      "code": "capsule-file-too-large",
+      "severity": "error",
+      "description": "Reject an Oracle Capsule JSON document above the frozen byte budget."
+    },
+    {
+      "code": "capsule-encoding",
+      "severity": "error",
+      "description": "Require strict UTF-8 without a byte-order mark for capsule JSON."
+    },
+    {
+      "code": "capsule-json-syntax",
+      "severity": "error",
+      "description": "Require unambiguous JSON syntax before validation or hashing."
+    },
+    {
+      "code": "capsule-duplicate-key",
+      "severity": "error",
+      "description": "Reject duplicate JSON object names before model construction."
+    },
+    {
+      "code": "capsule-unicode",
+      "severity": "error",
+      "description": "Reject lone Unicode surrogate data that is not I-JSON compatible."
+    },
+    {
+      "code": "capsule-number",
+      "severity": "error",
+      "description": "Reject non-finite and non-interoperable unsafe integer values."
+    },
+    {
+      "code": "capsule-limit",
+      "severity": "error",
+      "description": "Enforce capsule depth, node, scalar, file-count and byte budgets."
+    },
+    {
+      "code": "capsule-schema",
+      "severity": "error",
+      "description": "Require the manifest and source lock to satisfy their frozen schemas."
+    },
+    {
+      "code": "capsule-cid",
+      "severity": "error",
+      "description": "Require CIDv1 raw sha2-256 content addresses."
+    },
+    {
+      "code": "capsule-integrity",
+      "severity": "error",
+      "description": "Reject disagreements among exact bytes, byte lengths, SHA-256 digests and CIDs."
+    },
+    {
+      "code": "capsule-uri-policy",
+      "severity": "error",
+      "description": "Reject invalid, credential-bearing, query-bearing or mutable artifact URI forms."
+    },
+    {
+      "code": "capsule-duplicate-id",
+      "severity": "error",
+      "description": "Require component, tool and capability request identifiers to be unique."
+    },
+    {
+      "code": "capsule-reference",
+      "severity": "error",
+      "description": "Require component dependencies and requested tool references to resolve locally."
+    },
+    {
+      "code": "capsule-dependency-cycle",
+      "severity": "error",
+      "description": "Reject cyclic component dependency graphs."
+    },
+    {
+      "code": "capsule-lock",
+      "severity": "error",
+      "description": "Require complete, exact and component-bound source locks."
+    },
+    {
+      "code": "capsule-duplicate-path",
+      "severity": "error",
+      "description": "Reject duplicate paths in source locks."
+    },
+    {
+      "code": "capsule-path-collision",
+      "severity": "error",
+      "description": "Reject locked paths that collide on case-insensitive portable hosts."
+    },
+    {
+      "code": "capsule-release-digest",
+      "severity": "error",
+      "description": "Require the declared release digest to match the RFC 8785 release projection."
+    },
+    {
+      "code": "capsule-canonicalization",
+      "severity": "error",
+      "description": "Reject values that cannot be serialized by the frozen RFC 8785 contract."
     }
   ]
 }

@@ -103,7 +103,7 @@ under `examples/`.
 
 ## Repository layout
 
-- `spec/` — canonical specification, domain schema, template-manifest schema, and rule registry
+- `spec/` — canonical specification, domain/template schemas, the experimental Oracle Capsule manifest/source-lock contract, RFC 8785 vectors, and rule registry
 - `docs/` — generated human-readable specification
 - `packages/cli/` — public ESM TypeScript library and CLI
 - `examples/` — valid project draft, protocol/template bundle, and service domain

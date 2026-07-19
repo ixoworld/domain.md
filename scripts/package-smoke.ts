@@ -40,6 +40,10 @@ try {
     'assets/spec.md',
     'assets/domain-md.schema.json',
     'assets/template-manifest.schema.json',
+    'assets/oracle-capsule.schema.json',
+    'assets/oracle-capsule-source-lock.schema.json',
+    'assets/oracle-capsule-manifest-contract.md',
+    'assets/oracle-capsule-jcs-vectors.json',
     'assets/rules.json',
     'dist/cli.js',
     'dist/index.js',
@@ -80,10 +84,12 @@ try {
 
   const smokeProgram = [
     "import * as api from '@ixo/domain.md';",
-    "const required = ['parseDomain','lint','diffDomains','exportDomain','renderTemplateBundle','getSpecification','getSchema','getRules'];",
+    "const required = ['parseDomain','lint','diffDomains','exportDomain','renderTemplateBundle','getSpecification','getSchema','getRules','parseCapsuleJson','canonicalizeCapsuleJson','validateOracleCapsule','getOracleCapsuleSchema','getOracleCapsuleSourceLockSchema','getOracleCapsuleJcsVectors'];",
     "for (const name of required) if (typeof api[name] !== 'function') throw new Error(`missing export ${name}`);",
     "if (!api.getSpecification().includes('1.0.0-rc.1')) throw new Error('spec asset mismatch');",
     "if (api.getSchema().$id !== 'urn:ixo:domain-md:schema:1.0.0-rc.1') throw new Error('schema asset mismatch');",
+    "if (api.getOracleCapsuleSchema().$id !== 'urn:ixo:domain-md:x-oracle-capsule:manifest:0.1.0') throw new Error('capsule schema asset mismatch');",
+    "if (api.getOracleCapsuleJcsVectors().vectors.length < 8) throw new Error('capsule vectors missing');",
   ].join('\n');
   await execFile(process.execPath, ['--input-type=module', '--eval', smokeProgram], {
     cwd: temporary,

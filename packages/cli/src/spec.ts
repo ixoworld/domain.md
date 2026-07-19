@@ -24,6 +24,22 @@ export function getTemplateManifestSchema(): DomainRecord {
   return JSON.parse(readAsset('template-manifest.schema.json')) as DomainRecord;
 }
 
+export function getOracleCapsuleSchema(): DomainRecord {
+  return JSON.parse(readAsset('oracle-capsule.schema.json')) as DomainRecord;
+}
+
+export function getOracleCapsuleSourceLockSchema(): DomainRecord {
+  return JSON.parse(readAsset('oracle-capsule-source-lock.schema.json')) as DomainRecord;
+}
+
+export function getOracleCapsuleContract(): string {
+  return readAsset('oracle-capsule-manifest-contract.md');
+}
+
+export function getOracleCapsuleJcsVectors(): unknown {
+  return JSON.parse(readAsset('oracle-capsule-jcs-vectors.json')) as unknown;
+}
+
 export function getRules(): {
   specVersion: string;
   rules: Array<{ code: string; severity: string; description: string }>;

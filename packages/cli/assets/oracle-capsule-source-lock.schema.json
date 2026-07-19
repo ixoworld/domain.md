@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ixo:domain-md:x-oracle-capsule:source-lock:0.1.0",
+  "title": "IXO Oracle Capsule source lock",
+  "type": "object",
+  "required": ["apiVersion", "kind", "schema", "component", "artifact", "files"],
+  "properties": {
+    "apiVersion": { "const": "ixo.earth/oracle-capsule/v0alpha1" },
+    "kind": { "const": "OracleCapsuleSourceLock" },
+    "schema": { "const": "urn:ixo:domain-md:x-oracle-capsule:source-lock:0.1.0" },
+    "component": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$" },
+    "artifact": {
+      "type": "object",
+      "required": ["cid", "sha256", "bytes"],
+      "properties": {
+        "cid": { "$ref": "#/$defs/cid" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 0, "maximum": 67108864 }
+      },
+      "additionalProperties": false
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": {
+        "type": "object",
+        "required": ["path", "bytes", "sha256", "mode"],
+        "properties": {
+          "path": { "$ref": "#/$defs/relativePath" },
+          "bytes": { "type": "integer", "minimum": 0, "maximum": 67108864 },
+          "sha256": { "$ref": "#/$defs/sha256" },
+          "mode": { "const": "file" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "cid": { "type": "string", "pattern": "^b[a-z2-7]{10,}$" },
+    "relativePath": { "type": "string", "minLength": 1, "maxLength": 1024, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?!.*//)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$" }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "apiVersion": "ixo.earth/oracle-capsule/v0alpha1",
+  "kind": "OracleCapsuleSourceLock",
+  "schema": "urn:ixo:domain-md:x-oracle-capsule:source-lock:0.1.0",
+  "component": "master",
+  "artifact": {
+    "cid": "bafkreifqfy2hr2675fssl7lt75pu76ucdjygbcvidhnd6srfiuw2p2vx6i",
+    "sha256": "b02e3478ebdfe96525fd73ff5f4ffa821a70608aa819da3f4a25452da7eab7f2",
+    "bytes": 36
+  },
+  "files": [
+    {
+      "path": "../escape",
+      "bytes": 1,
+      "sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+      "mode": "file"
+    }
+  ]
+}

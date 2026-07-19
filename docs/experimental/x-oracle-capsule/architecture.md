@@ -1,9 +1,9 @@
 # x-oracle-capsule experimental architecture decision
 
-- Status: proposed for independent architecture and security review
-- Contract status: experimental, pre-schema
+- Status: accepted after independent architecture and security review
+- Contract status: experimental, schema version 0.1.0
 - Decision owner: Oracle Capsule project architecture reviewers
-- Implementation gate: IXO-3752
+- Implementation gate: IXO-3752 accepted; reviewed heads merged in domain.md PR 10 and qi-runtimes PR 13
 
 ## Decision
 
