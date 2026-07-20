@@ -28,7 +28,9 @@
     "ai-agents",
     "did",
     "governance",
-    "validation"
+    "validation",
+    "oracle-capsule",
+    "rfc8785"
   ],
   "bin": {
     "domain.md": "./dist/cli.js",
@@ -48,6 +50,10 @@
     "./templates": {
       "types": "./dist/templates/index.d.ts",
       "import": "./dist/templates/index.js"
+    },
+    "./capsule": {
+      "types": "./dist/capsule/index.d.ts",
+      "import": "./dist/capsule/index.js"
     }
   },
   "files": [

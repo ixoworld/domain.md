@@ -2,7 +2,12 @@ export { diffDomains } from './diff.js';
 export { exportDomain } from './export.js';
 export { lint } from './lint.js';
 export { parseDomain } from './parser.js';
+export * from './capsule/index.js';
 export {
+  getOracleCapsuleContract,
+  getOracleCapsuleJcsVectors,
+  getOracleCapsuleSchema,
+  getOracleCapsuleSourceLockSchema,
   getRules,
   getSchema,
   getSchemaSource,

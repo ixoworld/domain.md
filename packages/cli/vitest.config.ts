@@ -5,7 +5,7 @@ export default defineConfig({
     include: ['test/**/*.test.ts'],
     coverage: {
       provider: 'v8',
-      include: ['src/{parser,lint,semantic,diff,templates/render}.ts'],
+      include: ['src/{parser,lint,semantic,diff,templates/render,capsule/*.ts}'],
       thresholds: {
         perFile: true,
         lines: 85,

@@ -1,6 +1,6 @@
 # x-oracle-capsule threat model
 
-- Status: proposed for independent architecture and security review
+- Status: accepted after independent architecture and security review
 - Scope: experimental contract and Livelihoods shadow pilot
 - Companion decision: [x-oracle-capsule experimental architecture decision](./architecture.md)
 

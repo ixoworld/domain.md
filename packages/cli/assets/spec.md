@@ -796,6 +796,25 @@ The hot path an agent runs for every task:
 | `integrity-mismatch` | error | Reject bytes that do not match their declared SHA-256 digest or CID. |
 | `network-policy` | error | Reject unsafe HTTPS or IPFS retrieval, redirects, credentials, and private network targets. |
 | `runtime-external-checks-required` | info | Identify checks that static validation cannot prove for anchored and runtime profiles. |
+| `capsule-file-too-large` | error | Reject an Oracle Capsule JSON document above the frozen byte budget. |
+| `capsule-encoding` | error | Require strict UTF-8 without a byte-order mark for capsule JSON. |
+| `capsule-json-syntax` | error | Require unambiguous JSON syntax before validation or hashing. |
+| `capsule-duplicate-key` | error | Reject duplicate JSON object names before model construction. |
+| `capsule-unicode` | error | Reject lone Unicode surrogate data that is not I-JSON compatible. |
+| `capsule-number` | error | Reject non-finite and non-interoperable unsafe integer values. |
+| `capsule-limit` | error | Enforce capsule depth, node, scalar, file-count and byte budgets. |
+| `capsule-schema` | error | Require the manifest and source lock to satisfy their frozen schemas. |
+| `capsule-cid` | error | Require CIDv1 raw sha2-256 content addresses. |
+| `capsule-integrity` | error | Reject disagreements among exact bytes, byte lengths, SHA-256 digests and CIDs. |
+| `capsule-uri-policy` | error | Reject invalid, credential-bearing, query-bearing or mutable artifact URI forms. |
+| `capsule-duplicate-id` | error | Require component, tool and capability request identifiers to be unique. |
+| `capsule-reference` | error | Require component dependencies and requested tool references to resolve locally. |
+| `capsule-dependency-cycle` | error | Reject cyclic component dependency graphs. |
+| `capsule-lock` | error | Require complete, exact and component-bound source locks. |
+| `capsule-duplicate-path` | error | Reject duplicate paths in source locks. |
+| `capsule-path-collision` | error | Reject locked paths that collide on case-insensitive portable hosts. |
+| `capsule-release-digest` | error | Require the declared release digest to match the RFC 8785 release projection. |
+| `capsule-canonicalization` | error | Reject values that cannot be serialized by the frozen RFC 8785 contract. |
 
 ## 14\. Change control
 

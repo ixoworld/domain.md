@@ -1,0 +1,57 @@
+{
+  "contract": "urn:ixo:domain-md:x-oracle-capsule:jcs-vectors:0.1.0",
+  "standard": "RFC 8785",
+  "input_profile": "I-JSON with safe integers",
+  "exact_bytes_note": "Canonical bytes are used for generated digest and signature surfaces. Artifact CID and SHA-256 values cover exact fetched bytes and MUST NOT be recomputed from parsed or canonicalized content.",
+  "vectors": [
+    {
+      "name": "nested-key-order-and-array-order",
+      "input": "{\"b\":2,\"a\":1,\"nested\":{\"z\":false,\"x\":[3,null,\"ok\"]}}",
+      "canonical": "{\"a\":1,\"b\":2,\"nested\":{\"x\":[3,null,\"ok\"],\"z\":false}}",
+      "sha256": "a070af735949703f6babceafa678b655c2c7023c1391c60b6971f6576f800214"
+    },
+    {
+      "name": "ecmascript-number-serialization",
+      "input": "{\"numbers\":[333333333.33333329,4.50,2e-3,1e-27,-0]}",
+      "canonical": "{\"numbers\":[333333333.3333333,4.5,0.002,1e-27,0]}",
+      "sha256": "d643d0848531ed0c371cd568685f25bfb58064d6e091425152615add4dfba18f"
+    },
+    {
+      "name": "utf16-code-unit-property-order",
+      "input": "{\"1\":\"one\",\"€\":\"Euro\",\"\\r\":\"CR\",\"\":\"control\",\"ö\":\"latin\",\"😀\":\"emoji\"}",
+      "canonical": "{\"\\r\":\"CR\",\"1\":\"one\",\"\":\"control\",\"ö\":\"latin\",\"€\":\"Euro\",\"😀\":\"emoji\"}",
+      "sha256": "2edb0589ad42854433550be7f5cae2e1635a304d71d9f6985070faf256a4c97b"
+    },
+    {
+      "name": "json-string-escaping",
+      "input": "{\"text\":\"line\\nquote\\\"slash\\tab\\t\"}",
+      "canonical": "{\"text\":\"line\\nquote\\\"slash\\tab\\t\"}",
+      "sha256": "3183b19961812dafd142dd31a0c989b8539bb9859efa1ce9e8188d16289bb87b"
+    },
+    {
+      "name": "reject-duplicate-object-name",
+      "input": "{\"a\":1,\"a\":2}",
+      "errorCode": "capsule-duplicate-key"
+    },
+    {
+      "name": "reject-lone-surrogate",
+      "input": "{\"x\":\"\\uDEAD\"}",
+      "errorCode": "capsule-unicode"
+    },
+    {
+      "name": "reject-unsafe-integer",
+      "input": "{\"x\":9007199254740992}",
+      "errorCode": "capsule-number"
+    },
+    {
+      "name": "reject-non-finite-overflow",
+      "input": "{\"x\":1e999}",
+      "errorCode": "capsule-number"
+    },
+    {
+      "name": "reject-byte-order-mark",
+      "input": "﻿{}",
+      "errorCode": "capsule-encoding"
+    }
+  ]
+}

@@ -84,7 +84,8 @@
     "asset": { "type": "object" },
     "deed": { "type": "object" },
     "protocol": { "type": "object" },
-    "investment": { "type": "object" }
+    "investment": { "type": "object" },
+    "x-oracle-capsule": { "$ref": "#/$defs/oracleCapsuleBinding" }
   },
   "patternProperties": {
     "^x-[a-z0-9][a-z0-9-]*$": true
@@ -243,6 +244,35 @@
     },
     "uri": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:" },
     "cid": { "type": "string", "pattern": "^b[a-z2-7]{10,}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "oracleCapsuleBinding": {
+      "type": "object",
+      "required": ["contract", "manifest"],
+      "properties": {
+        "contract": { "const": "ixo.earth/oracle-capsule/v0alpha1" },
+        "manifest": {
+          "type": "object",
+          "required": ["uri", "cid", "sha256", "media_type", "schema", "version"],
+          "properties": {
+            "uri": {
+              "type": "string",
+              "pattern": "^(ipfs://b[a-z2-7]{10,}(?:/[^?#]*)?|https://[^/?#]+/[^?#]*|file:[^?#]+)$"
+            },
+            "cid": { "$ref": "#/$defs/cid" },
+            "sha256": { "$ref": "#/$defs/sha256" },
+            "media_type": { "const": "application/vnd.ixo.oracle-capsule+json" },
+            "schema": { "const": "urn:ixo:domain-md:x-oracle-capsule:manifest:0.1.0" },
+            "version": { "$ref": "#/$defs/semver" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "stringArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
     "didArray": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/did" } },
     "amount": {

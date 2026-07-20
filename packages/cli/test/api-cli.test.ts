@@ -6,6 +6,10 @@ import { spawn } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 
 import {
+  getOracleCapsuleContract,
+  getOracleCapsuleJcsVectors,
+  getOracleCapsuleSchema,
+  getOracleCapsuleSourceLockSchema,
   getRules,
   getSchema,
   getSpecification,
@@ -52,6 +56,12 @@ describe('public API', () => {
     expect(getSpecification()).toContain('# domain.md Specification');
     expect(getSchema().$id).toBe('urn:ixo:domain-md:schema:1.0.0-rc.1');
     expect(getTemplateManifestSchema().$id).toContain('template-manifest-schema');
+    expect(getOracleCapsuleSchema().$id).toContain('x-oracle-capsule:manifest:0.1.0');
+    expect(getOracleCapsuleSourceLockSchema().$id).toContain('source-lock:0.1.0');
+    expect(getOracleCapsuleContract()).toContain('static-pass');
+    expect((getOracleCapsuleJcsVectors() as { vectors: unknown[] }).vectors.length).toBeGreaterThan(
+      7,
+    );
     expect(getRules().rules.length).toBeGreaterThan(10);
   });
 });
