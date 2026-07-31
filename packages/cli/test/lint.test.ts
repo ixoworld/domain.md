@@ -237,6 +237,12 @@ describe('lint', () => {
           'decision_procedure: "missing-decision-procedure"',
         ),
     );
+    const norm = lint(
+      base.replace(
+        'norms: [ "resource:constitutional-principles-v1" ]',
+        'norms: [ "missing-norm" ]',
+      ),
+    );
     expect(
       effectivePeriod.findings.some(
         (finding) => finding.code === 'constitution-conflicts-canonical',
@@ -252,6 +258,12 @@ describe('lint', () => {
         (finding) => finding.code === 'constitutional-authority-unverified',
       ).length,
     ).toBeGreaterThanOrEqual(2);
+    expect(
+      norm.findings.some(
+        (finding) =>
+          finding.code === 'constitution-required' && finding.message.includes('does not resolve'),
+      ),
+    ).toBe(true);
   });
 
   it('enforces executable governance, constitutional AI, supersession, and amendments', async () => {
@@ -325,6 +337,14 @@ describe('lint', () => {
         .replace('enforcement_points: [ "#matrix" ]', 'enforcement_points: [ "missing-service" ]'),
     );
     const noAI = lint(base.replace('mode: "critique_and_revise"', 'mode: "none"'));
+    const noHumanGate = lint(
+      base
+        .replace('mode: "machine_assisted"', 'mode: "machine_executable"')
+        .replace(
+          'human_review_required_for: [ "payment_release", "rights_change", "constitutional_amendment" ]',
+          'human_review_required_for: []',
+        ),
+    );
     const aiDependencies = lint(
       base
         .replace(
@@ -343,6 +363,11 @@ describe('lint', () => {
     expect(noAI.findings.some((finding) => finding.code === 'constitutional-ai-incomplete')).toBe(
       true,
     );
+    expect(
+      noHumanGate.findings.some(
+        (finding) => finding.code === 'constitutional-execution-incomplete',
+      ),
+    ).toBe(true);
     expect(
       aiDependencies.findings.filter((finding) => finding.code === 'constitutional-ai-incomplete')
         .length,
@@ -393,6 +418,27 @@ describe('lint', () => {
     const report = lint(changed);
     expect(report.ok, JSON.stringify(report.findings)).toBe(true);
     expect(report.document?.frontmatter.constitution).toHaveProperty('status', 'not_applicable');
+  });
+
+  it('binds every agent controller to constitutional-AI principles and procedures', async () => {
+    const changed = (await example())
+      .replace(
+        'primary_controller: "did:ixo:dao:marketplace-operators"',
+        'primary_controller: "did:ixo:agent:constitutional-controller"',
+      )
+      .replace('agent_controllers_allowed: false', 'agent_controllers_allowed: true')
+      .replace(
+        '- id: "did:ixo:dao:marketplace-operators"\n      type: "dao"',
+        '- id: "did:ixo:agent:constitutional-controller"\n      type: "agent"',
+      );
+    const report = lint(changed);
+    expect(
+      report.findings.some(
+        (finding) =>
+          finding.code === 'constitutional-ai-incomplete' &&
+          finding.message.includes('Agent controller'),
+      ),
+    ).toBe(true);
   });
 
   it('enforces controller and source authority references', async () => {

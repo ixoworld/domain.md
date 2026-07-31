@@ -580,7 +580,8 @@
             "properties": {
               "implementations": { "minItems": 1 },
               "conformance_tests": { "minItems": 1 },
-              "enforcement_points": { "minItems": 1 }
+              "enforcement_points": { "minItems": 1 },
+              "human_review_required_for": { "minItems": 1 }
             }
           }
         }

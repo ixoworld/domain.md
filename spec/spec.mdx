@@ -612,6 +612,8 @@ policy, following the critique-and-revision mechanism described in
 approvals, or execution authority. On conflict,
 canonical authority prevails. Audit records contain principle IDs, reason codes, outcomes, evidence
 references, and execution receipts; they MUST NOT require or expose private chain-of-thought.
+Every declared agent controller MUST be included in `constitutional_ai.applies_to_agents`, so its proposals
+are evaluated against the same identified principles and procedures before live authorization is resolved.
 
 ### 4.4 Linked documents
 
