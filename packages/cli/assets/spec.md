@@ -1429,6 +1429,6 @@ Builds on IXO primitives: DID-anchored IID entity domains (controllers, services
 
 The constitutional terms and catalogue use the merged IXO vocabulary at
 `https://w3id.org/ixo/vocab/v1/constitution#`, source commit
-`c9557bf0b8b7bc842501ba132e90e3edee0739ba`, including the legal-form-independent subject catalogue at
+`697e443a69aa1adf23c240c6fc6bd56434d1a9eb`, including the legal-form-independent subject catalogue at
 `https://w3id.org/ixo/vocab/v1/constitution/subjects`. Terms are specialized with RDFS/OWL and organized with SKOS;
 provenance reuses DCTERMS and PROV-O, while permissions, prohibitions, and duties reuse ODRL.
