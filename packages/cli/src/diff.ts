@@ -15,6 +15,7 @@ const SECURITY_PREFIXES = [
   '/accounts',
   '/privacy',
   '/source_of_truth',
+  '/constitution',
   '/claims',
   '/agents',
   '/agent_default_mode',

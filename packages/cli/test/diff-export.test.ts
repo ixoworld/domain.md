@@ -24,6 +24,19 @@ describe('diff and export', () => {
     expect(diffDomains(before, after, { failOn: 'review' }).regression).toBe(true);
   });
 
+  it('classifies constitutional changes as security-sensitive', async () => {
+    const before = await example();
+    const after = before.replace('failure_policy: "pause_and_escalate"', 'failure_policy: "deny"');
+    const report = diffDomains(before, after);
+    expect(
+      report.changes.some(
+        (change) =>
+          change.path.startsWith('/constitution') && change.classification === 'security-sensitive',
+      ),
+    ).toBe(true);
+    expect(report.requiresReview).toBe(true);
+  });
+
   it('classifies prose changes as narrative', async () => {
     const before = await example();
     const after = before.replace(

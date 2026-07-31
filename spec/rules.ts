@@ -102,6 +102,54 @@ export const RULES: RuleDefinition[] = [
       'Enforce universal roles, manifest authority, disclosure, privacy, and profile identity rules.',
   },
   {
+    code: 'constitution-required',
+    severity: 'error',
+    description:
+      'Require governed and agentic domains to declare a complete constitutional package.',
+  },
+  {
+    code: 'constitution-not-applicable-invalid',
+    severity: 'error',
+    description:
+      'Permit not_applicable only for passive domains without agent or executable governance.',
+  },
+  {
+    code: 'constitutional-instrument-unresolved',
+    severity: 'error',
+    description:
+      'Require every constitutional instrument to resolve to a unique domain document entry.',
+  },
+  {
+    code: 'constitutional-authority-unverified',
+    severity: 'error',
+    description:
+      'Require jurisdiction and authority evidence before legal effect may be marked verified.',
+  },
+  {
+    code: 'constitutional-execution-incomplete',
+    severity: 'error',
+    description:
+      'Require executable governance implementations, tests, enforcement points, and fail-closed policy.',
+  },
+  {
+    code: 'constitutional-ai-incomplete',
+    severity: 'error',
+    description:
+      'Require agentic domains to bind principles, procedures, agents, conflict policy, and an audit record.',
+  },
+  {
+    code: 'constitution-conflicts-canonical',
+    severity: 'error',
+    description:
+      'Reject inconsistent effective periods or simultaneously canonical superseded instruments.',
+  },
+  {
+    code: 'constitutional-amendment-unapproved',
+    severity: 'error',
+    description:
+      'Require amending instruments to resolve an amendment procedure and constitutional authority source.',
+  },
+  {
     code: 'broken-local-reference',
     severity: 'error',
     description:

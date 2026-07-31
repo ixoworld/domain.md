@@ -69,7 +69,7 @@ try {
   const installedPackage = JSON.parse(
     await readFile(join(temporary, 'node_modules/@ixo/domain.md/package.json'), 'utf8'),
   ) as { bin?: Record<string, string>; version?: string };
-  if (installedPackage.version !== '0.1.0') throw new Error('Packed package version drifted.');
+  if (installedPackage.version !== '0.2.0') throw new Error('Packed package version drifted.');
   if (
     installedPackage.bin?.['domain.md'] !== './dist/cli.js' ||
     installedPackage.bin.domainmd !== './dist/cli.js'
@@ -86,8 +86,8 @@ try {
     "import * as api from '@ixo/domain.md';",
     "const required = ['parseDomain','lint','diffDomains','exportDomain','renderTemplateBundle','getSpecification','getSchema','getRules','parseCapsuleJson','canonicalizeCapsuleJson','validateOracleCapsule','getOracleCapsuleSchema','getOracleCapsuleSourceLockSchema','getOracleCapsuleJcsVectors'];",
     "for (const name of required) if (typeof api[name] !== 'function') throw new Error(`missing export ${name}`);",
-    "if (!api.getSpecification().includes('1.0.0-rc.1')) throw new Error('spec asset mismatch');",
-    "if (api.getSchema().$id !== 'urn:ixo:domain-md:schema:1.0.0-rc.1') throw new Error('schema asset mismatch');",
+    "if (!api.getSpecification().includes('1.0.0-rc.2')) throw new Error('spec asset mismatch');",
+    "if (api.getSchema().$id !== 'urn:ixo:domain-md:schema:1.0.0-rc.2') throw new Error('schema asset mismatch');",
     "if (api.getOracleCapsuleSchema().$id !== 'urn:ixo:domain-md:x-oracle-capsule:manifest:0.1.0') throw new Error('capsule schema asset mismatch');",
     "if (api.getOracleCapsuleJcsVectors().vectors.length < 8) throw new Error('capsule vectors missing');",
   ].join('\n');
@@ -97,9 +97,9 @@ try {
 
   const cli = join(temporary, 'node_modules/@ixo/domain.md/dist/cli.js');
   const version = await execFile(process.execPath, [cli, '--version'], { cwd: temporary });
-  if (version.stdout.trim() !== '0.1.0') throw new Error('Packed CLI version mismatch.');
+  if (version.stdout.trim() !== '0.2.0') throw new Error('Packed CLI version mismatch.');
   const schema = await execFile(process.execPath, [cli, 'schema'], { cwd: temporary });
-  if (!schema.stdout.includes('urn:ixo:domain-md:schema:1.0.0-rc.1'))
+  if (!schema.stdout.includes('urn:ixo:domain-md:schema:1.0.0-rc.2'))
     throw new Error('Packed CLI schema mismatch.');
 
   console.log(`Packed-package smoke test passed on ${process.platform}/${process.arch}.`);

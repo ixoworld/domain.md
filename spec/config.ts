@@ -1,4 +1,4 @@
-export const SPEC_VERSION = '1.0.0-rc.1';
+export const SPEC_VERSION = '1.0.0-rc.2';
 export const SCHEMA_ID = `urn:ixo:domain-md:schema:${SPEC_VERSION}`;
 export const TEMPLATE_SCHEMA_ID = `urn:ixo:domain-md:template-manifest-schema:${SPEC_VERSION}`;
 export const ORACLE_CAPSULE_CONTRACT = 'ixo.earth/oracle-capsule/v0alpha1';
@@ -33,6 +33,7 @@ export const CANONICAL_SECTIONS = [
   'Overview',
   'Operating Model',
   'Authority & Control',
+  'Constitutional Governance',
   'Services',
   'Resources',
   'Rights & Capabilities',
@@ -53,4 +54,59 @@ export const EXTERNAL_CHECKS = [
   'capability-revocation',
   'trusted-clock',
   'chain-anchor',
+  'constitutional-instrument-cid',
+  'constitutional-authority-current',
+  'constitutional-effective-status',
+  'constitutional-implementation-integrity',
+  'constitutional-enforcement-deployment',
+  'constitutional-ai-profile-binding',
+] as const;
+
+export const CONSTITUTION_STATUSES = [
+  'not_applicable',
+  'draft',
+  'adopted',
+  'in_force',
+  'suspended',
+  'superseded',
+] as const;
+
+export const CONSTITUTION_TYPES = [
+  'con:StateConstitution',
+  'con:InternationalOrganizationConstitution',
+  'con:OrganizationalConstitution',
+  'con:CorporateConstitution',
+  'con:TrustConstitution',
+  'con:CooperativeConstitution',
+  'con:PartnershipConstitution',
+  'con:FoundationConstitution',
+  'con:PublicBodyConstitution',
+  'con:ProjectConstitution',
+  'con:ProtocolConstitution',
+  'con:DAOConstitution',
+  'con:AgenticConstitution',
+  'con:SchemeConstitution',
+] as const;
+
+export const CONSTITUTION_INSTRUMENT_FUNCTIONS = [
+  'constitutive',
+  'governing',
+  'amending',
+  'interpretive',
+  'executable',
+] as const;
+
+export const CONSTITUTION_EXECUTION_MODES = [
+  'human_interpreted',
+  'machine_assisted',
+  'machine_executable',
+  'hybrid',
+] as const;
+
+export const CONSTITUTION_AI_MODES = [
+  'none',
+  'context_only',
+  'critique_and_revise',
+  'policy_evaluate',
+  'hybrid',
 ] as const;

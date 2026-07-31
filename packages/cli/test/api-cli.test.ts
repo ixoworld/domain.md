@@ -6,6 +6,9 @@ import { spawn } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 
 import {
+  CONSTITUTION_AI_MODES,
+  CONSTITUTION_STATUSES,
+  CONSTITUTION_TYPES,
   getOracleCapsuleContract,
   getOracleCapsuleJcsVectors,
   getOracleCapsuleSchema,
@@ -54,7 +57,7 @@ describe('public API', () => {
     expect(parseDomain(source).ok).toBe(true);
     expect(lint(source).ok).toBe(true);
     expect(getSpecification()).toContain('# domain.md Specification');
-    expect(getSchema().$id).toBe('urn:ixo:domain-md:schema:1.0.0-rc.1');
+    expect(getSchema().$id).toBe('urn:ixo:domain-md:schema:1.0.0-rc.2');
     expect(getTemplateManifestSchema().$id).toContain('template-manifest-schema');
     expect(getOracleCapsuleSchema().$id).toContain('x-oracle-capsule:manifest:0.1.0');
     expect(getOracleCapsuleSourceLockSchema().$id).toContain('source-lock:0.1.0');
@@ -63,12 +66,15 @@ describe('public API', () => {
       7,
     );
     expect(getRules().rules.length).toBeGreaterThan(10);
+    expect(CONSTITUTION_STATUSES).toContain('in_force');
+    expect(CONSTITUTION_TYPES).toContain('con:AgenticConstitution');
+    expect(CONSTITUTION_AI_MODES).toContain('critique_and_revise');
   });
 });
 
 describe('CLI', () => {
   it('reports version and emits schema', async () => {
-    expect((await runCli(['--version'])).stdout).toContain('0.1.0');
+    expect((await runCli(['--version'])).stdout).toContain('0.2.0');
     const schema = await runCli(['schema']);
     expect(schema.code).toBe(0);
     expect(JSON.parse(schema.stdout)).toHaveProperty('$id');

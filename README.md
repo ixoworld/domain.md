@@ -4,7 +4,8 @@ An open format and TypeScript toolchain for giving AI agents a persistent, autho
 for an IXO entity domain.
 
 `domain.md` combines YAML 1.2 frontmatter with ordered Markdown guidance. The machine layer identifies
-controllers, services, resources, rights, claims, accounts, flows, privacy, and source-of-truth boundaries.
+constitutions, controllers, services, resources, rights, claims, accounts, flows, privacy, and
+source-of-truth boundaries.
 The prose layer explains purpose and safe operating context.
 
 The repository is structurally inspired by
@@ -27,7 +28,7 @@ npm run build
 node packages/cli/dist/cli.js lint examples/project-authoring/domain.md
 ```
 
-The public package version is `0.1.0`; the bundled specification version is `1.0.0-rc.1`. They are
+The unreleased public package version is `0.2.0`; the bundled specification version is `1.0.0-rc.2`. They are
 intentionally independent.
 
 ## Library API
@@ -88,12 +89,13 @@ rights, or move value.
 ## Static versus runtime conformance
 
 A static pass is not proof of live authorization. Anchored and runtime profiles still require external CID,
-DID/IID resolver, capability revocation, trusted-clock, chain-anchor, and canonical-state checks. Reports
-enumerate those unresolved checks.
+DID/IID resolver, constitutional authority, capability revocation, trusted-clock, chain-anchor, and
+canonical-state checks. A constitutional document or model evaluation never self-authorizes an action.
+Reports enumerate those unresolved checks.
 
 ## Specification
 
-The current specification is `1.0.0-rc.1`. Read [the generated specification](docs/spec.md) and the
+The current specification is `1.0.0-rc.2`. Read [the generated specification](docs/spec.md) and the
 [machine-readable schema](spec/domain-md.schema.json) together.
 
 Canonical inputs live under `spec/`: MDX, JSON Schemas, TypeScript rule metadata, and version constants.
@@ -106,7 +108,7 @@ under `examples/`.
 - `spec/` — canonical specification, domain/template schemas, the experimental Oracle Capsule manifest/source-lock contract, RFC 8785 vectors, and rule registry
 - `docs/` — generated human-readable specification
 - `packages/cli/` — public ESM TypeScript library and CLI
-- `examples/` — valid project draft, protocol/template bundle, and service domain
+- `examples/` — valid governed project, protocol/template, service, and passive dataset domains
 - `scripts/` — specification, example, and packed-package verification
 
 ## Development and releases

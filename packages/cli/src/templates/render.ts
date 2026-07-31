@@ -250,6 +250,8 @@ function renderMarkdownTemplate(
     renderedFrontmatter.domain.class = expectedProtocol;
     renderedFrontmatter.domain.status = 'draft';
   }
+  if (isRecord(renderedFrontmatter.constitution))
+    renderedFrontmatter.constitution.subject = `urn:uuid:${draftId}`;
   renderedFrontmatter.version = SPEC_VERSION;
   if (isRecord(renderedFrontmatter.conformance))
     renderedFrontmatter.conformance.profile = 'authoring_draft';

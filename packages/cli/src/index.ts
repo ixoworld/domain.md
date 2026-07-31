@@ -17,6 +17,15 @@ export {
 export { renderTemplateBundle } from './templates/render.js';
 export { TemplateValidationError } from './templates/errors.js';
 export {
+  CONSTITUTION_AI_MODES,
+  CONSTITUTION_EXECUTION_MODES,
+  CONSTITUTION_INSTRUMENT_FUNCTIONS,
+  CONSTITUTION_STATUSES,
+  CONSTITUTION_TYPES,
+  PACKAGE_VERSION,
+  SPEC_VERSION,
+} from './constants.js';
+export {
   FileTemplateResolver,
   HttpsTemplateResolver,
   IpfsTemplateResolver,

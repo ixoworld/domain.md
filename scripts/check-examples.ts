@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { lint, renderTemplateBundle, validateOracleCapsule } from '../packages/cli/src/index.js';
 
 const examples = [
+  ['passive-dataset', 'standalone'],
   ['project-authoring', 'derived'],
   ['protocol-domain', 'protocol'],
   ['service-domain', 'derived'],
