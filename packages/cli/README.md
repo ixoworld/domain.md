@@ -20,6 +20,11 @@ distribution, and signer checks that remain unresolved; it is not an executable 
 Static validation never proves live authority. Anchored and runtime reports enumerate the resolver, CID,
 revocation, trusted-clock, and chain checks that remain external.
 
+The bundled `1.0.0-rc.3` contract models constitutional subjects independently of legal form. Every domain
+declares a uniform `constitution.subject_profile`; exported subject-type and archetype constants cover
+assets, work, information, places, biological subjects, networks, governance patterns, claims, wallets,
+and agentic twins.
+
 See the [repository README](https://github.com/ixoworld/domain.md#readme),
 [specification](https://github.com/ixoworld/domain.md/blob/main/docs/spec.md), and
 [security policy](https://github.com/ixoworld/domain.md/security/policy) for full documentation.

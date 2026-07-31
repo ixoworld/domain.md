@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:ixo:domain-md:template-manifest-schema:1.0.0-rc.2",
+  "$id": "urn:ixo:domain-md:template-manifest-schema:1.0.0-rc.3",
   "title": "domain.md protocol template manifest",
   "type": "object",
   "required": ["version", "kind", "protocol", "protocol_version", "bundles"],
   "properties": {
-    "version": { "const": "1.0.0-rc.2" },
+    "version": { "const": "1.0.0-rc.3" },
     "kind": { "const": "domain.md/template-manifest" },
     "protocol": { "type": "string", "pattern": "^did:[a-z0-9]+:[^\\s]+$" },
     "protocol_version": { "type": "string", "minLength": 1 },

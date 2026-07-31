@@ -28,7 +28,7 @@ npm run build
 node packages/cli/dist/cli.js lint examples/project-authoring/domain.md
 ```
 
-The unreleased public package version is `0.2.0`; the bundled specification version is `1.0.0-rc.2`. They are
+The unreleased public package version is `0.3.0`; the bundled specification version is `1.0.0-rc.3`. They are
 intentionally independent.
 
 ## Library API
@@ -95,8 +95,14 @@ Reports enumerate those unresolved checks.
 
 ## Specification
 
-The current specification is `1.0.0-rc.2`. Read [the generated specification](docs/spec.md) and the
+The current specification is `1.0.0-rc.3`. Read [the generated specification](docs/spec.md) and the
 [machine-readable schema](spec/domain-md.schema.json) together.
+
+rc.3 treats a constitutional subject as a general semantic role rather than a legal-entity taxon.
+Persons, assets, work, services, claims, evidence, places, biological subjects, networks, and agentic
+twins use the same identity, purpose, claims, wallets, authority, policy, governance, and lifecycle facets. A subject's
+`domain.type`, semantic subject classes, constitutional archetypes, constitution type, and instruments
+remain distinct.
 
 Canonical inputs live under `spec/`: MDX, JSON Schemas, TypeScript rule metadata, and version constants.
 `npm run spec:generate` creates `docs/spec.md` and packaged assets; `npm run spec:check` fails on drift in

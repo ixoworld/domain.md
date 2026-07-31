@@ -17,6 +17,8 @@ export {
 export { renderTemplateBundle } from './templates/render.js';
 export { TemplateValidationError } from './templates/errors.js';
 export {
+  CONSTITUTIONAL_ARCHETYPES,
+  CONSTITUTIONAL_SUBJECT_TYPES,
   CONSTITUTION_AI_MODES,
   CONSTITUTION_EXECUTION_MODES,
   CONSTITUTION_INSTRUMENT_FUNCTIONS,

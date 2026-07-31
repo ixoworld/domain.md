@@ -6,6 +6,8 @@ import { spawn } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 
 import {
+  CONSTITUTIONAL_ARCHETYPES,
+  CONSTITUTIONAL_SUBJECT_TYPES,
   CONSTITUTION_AI_MODES,
   CONSTITUTION_STATUSES,
   CONSTITUTION_TYPES,
@@ -57,7 +59,7 @@ describe('public API', () => {
     expect(parseDomain(source).ok).toBe(true);
     expect(lint(source).ok).toBe(true);
     expect(getSpecification()).toContain('# domain.md Specification');
-    expect(getSchema().$id).toBe('urn:ixo:domain-md:schema:1.0.0-rc.2');
+    expect(getSchema().$id).toBe('urn:ixo:domain-md:schema:1.0.0-rc.3');
     expect(getTemplateManifestSchema().$id).toContain('template-manifest-schema');
     expect(getOracleCapsuleSchema().$id).toContain('x-oracle-capsule:manifest:0.1.0');
     expect(getOracleCapsuleSourceLockSchema().$id).toContain('source-lock:0.1.0');
@@ -67,14 +69,17 @@ describe('public API', () => {
     );
     expect(getRules().rules.length).toBeGreaterThan(10);
     expect(CONSTITUTION_STATUSES).toContain('in_force');
+    expect(CONSTITUTION_TYPES).toContain('con:AssetConstitution');
     expect(CONSTITUTION_TYPES).toContain('con:AgenticConstitution');
+    expect(CONSTITUTIONAL_SUBJECT_TYPES).toContain('con:Asset');
+    expect(CONSTITUTIONAL_ARCHETYPES).toContain('con:Stewarded');
     expect(CONSTITUTION_AI_MODES).toContain('critique_and_revise');
   });
 });
 
 describe('CLI', () => {
   it('reports version and emits schema', async () => {
-    expect((await runCli(['--version'])).stdout).toContain('0.2.0');
+    expect((await runCli(['--version'])).stdout).toContain('0.3.0');
     const schema = await runCli(['schema']);
     expect(schema.code).toBe(0);
     expect(JSON.parse(schema.stdout)).toHaveProperty('$id');

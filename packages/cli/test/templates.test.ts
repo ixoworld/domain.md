@@ -86,9 +86,9 @@ describe('template manifests and rendering', () => {
   });
 
   it('rejects duplicate JSON keys and unsafe YAML manifest features', () => {
-    const duplicate = new TextEncoder().encode('{"version":"1.0.0-rc.2","version":"1.0.0-rc.2"}');
+    const duplicate = new TextEncoder().encode('{"version":"1.0.0-rc.3","version":"1.0.0-rc.3"}');
     const anchored = new TextEncoder().encode(
-      'version: &version "1.0.0-rc.2"\nkind: "domain.md/template-manifest"\n',
+      'version: &version "1.0.0-rc.3"\nkind: "domain.md/template-manifest"\n',
     );
     expect(() => parseTemplateManifest(duplicate)).toThrow();
     expect(() => parseTemplateManifest(anchored)).toThrow('forbidden YAML');
@@ -111,8 +111,9 @@ describe('template manifests and rendering', () => {
     const parsed = parseDomain(rendered);
     const domain = parsed.document?.frontmatter.domain as { id?: string } | undefined;
     const constitution = parsed.document?.frontmatter.constitution as
-      { subject?: string } | undefined;
+      { subject?: string; subject_profile?: { identity?: string[] } } | undefined;
     expect(constitution?.subject).toBe(domain?.id);
+    expect(constitution?.subject_profile?.identity).toContain(domain?.id);
     expect(first.provenance).not.toContain('Community Field Services');
   });
 
@@ -162,7 +163,7 @@ describe('template manifests and rendering', () => {
       const sourceRoot = resolve(repositoryRoot, 'examples/protocol-domain');
       const template = await readFile(resolve(sourceRoot, 'templates/project/domain.md.tmpl'));
       await writeFile(resolve(root, 'domain.md.tmpl'), template);
-      const manifest = `version: "1.0.0-rc.2"\nkind: "domain.md/template-manifest"\nprotocol: "${protocol}"\nprotocol_version: "1"\nbundles:\n  - derived_type: "project"\n    bundle_version: "1"\n    files:\n      - role: "domain.md"\n        path: "templates/project/domain.md.tmpl"\n        media_type: "text/markdown"\n        max_bytes: 1048576\n        sha256: "${createHash('sha256').update('wrong').digest('hex')}"\n        required: true\n`;
+      const manifest = `version: "1.0.0-rc.3"\nkind: "domain.md/template-manifest"\nprotocol: "${protocol}"\nprotocol_version: "1"\nbundles:\n  - derived_type: "project"\n    bundle_version: "1"\n    files:\n      - role: "domain.md"\n        path: "templates/project/domain.md.tmpl"\n        media_type: "text/markdown"\n        max_bytes: 1048576\n        sha256: "${createHash('sha256').update('wrong').digest('hex')}"\n        required: true\n`;
       await writeFile(resolve(root, 'manifest.yaml'), manifest);
       await expect(
         renderTemplateBundle({

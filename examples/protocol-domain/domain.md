@@ -1,9 +1,9 @@
 ---
-version: "1.0.0-rc.2"
+version: "1.0.0-rc.3"
 kind: "domain.md"
 conformance:
-  spec_version: "1.0.0-rc.2"
-  schema: "urn:ixo:domain-md:schema:1.0.0-rc.2"
+  spec_version: "1.0.0-rc.3"
+  schema: "urn:ixo:domain-md:schema:1.0.0-rc.3"
   profile: "authoring_draft"
 document_revision: "0.1.0"
 name: "Verified Services Protocol"
@@ -43,6 +43,31 @@ constitution:
   reason: null
   subject: "urn:uuid:323e4567-e89b-42d3-a456-426614174000"
   type: "con:ProtocolConstitution"
+  subject_profile:
+    subject_types: [ "con:Protocol", "con:EvaluationProtocol", "con:GovernanceProtocol" ]
+    archetypes: [ "con:Governed", "con:Verified", "con:Regulated" ]
+    identity: [ "urn:uuid:323e4567-e89b-42d3-a456-426614174000" ]
+    purposes: [ "resource:protocol-purpose-v1" ]
+    interests: [ "resource:protocol-participant-interests-v1" ]
+    values: [ "resource:constitutional-principles-v1" ]
+    rights: [ "right:submit-service-claim", "right:evaluate-service-claim" ]
+    obligations: [ "resource:protocol-obligations-v1" ]
+    capabilities: [ "right:evaluate-service-claim" ]
+    claims: [ "claim-collection:field-services" ]
+    wallets: [ "did:ixo:wallet:verified-services-protocol" ]
+    authorities: [ "did:ixo:dao:marketplace-operators" ]
+    memory: [ "resource:protocol-memory-policy-v1" ]
+    evidence_policies: [ "resource:protocol-evidence-policy-v1" ]
+    evaluation_policies: [ "resource:protocol-evaluation-policy-v1" ]
+    decision_policies: [ "resource:protocol-decision-procedure-v1" ]
+    settlement_policies: [ "resource:protocol-settlement-policy-v1" ]
+    governance: [ "domain-charter" ]
+    custodians: []
+    stewards: [ "did:ixo:dao:marketplace-operators" ]
+    owners: []
+    beneficiaries: [ "did:ixo:entity:protocol-participants" ]
+    oracles: [ "did:ixo:agent:evidence-review-oracle" ]
+    agentic_twins: [ "did:ixo:agent:evidence-review-oracle" ]
   legal_effect: { status: "unknown", jurisdiction: null, authority_evidence: [] }
   norms: [ "resource:constitutional-principles-v1" ]
   instruments:
