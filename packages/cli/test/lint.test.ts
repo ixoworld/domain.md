@@ -494,6 +494,28 @@ describe('lint', () => {
     expect(report.ok, JSON.stringify(report.findings)).toBe(true);
   });
 
+  it('resolves nested claim types and linked claims from the subject profile', async () => {
+    const nested = lint(
+      (await example()).replace(
+        'claims: [ "claim-collection:field-services" ]',
+        'claims: [ "service_delivery" ]',
+      ),
+    );
+    const linked = lint(
+      (await example())
+        .replace(
+          'claims: [ "claim-collection:field-services" ]',
+          'claims: [ "linked-service-claim" ]',
+        )
+        .replace(
+          'claims:\n  collections:',
+          'claims:\n  linked_claims:\n    - { id: "linked-service-claim" }\n  collections:',
+        ),
+    );
+    expect(nested.ok, JSON.stringify(nested.findings)).toBe(true);
+    expect(linked.ok, JSON.stringify(linked.findings)).toBe(true);
+  });
+
   it('does not automatically classify a deed subject as a constitution', async () => {
     const changed = (await example('passive-dataset'))
       .replace('  type: "dataset"', '  type: "deed"')

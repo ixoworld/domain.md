@@ -279,8 +279,13 @@ function validateAuthority(
     'linked entity',
     findings,
   );
+  const claimCollections = records(frontmatter.claims, 'collections');
   const claims = new Set(
-    records(frontmatter.claims, 'collections')
+    [
+      ...claimCollections,
+      ...claimCollections.flatMap((collection) => records(collection, 'claim_types')),
+      ...records(frontmatter.claims, 'linked_claims'),
+    ]
       .map((entry) => entry.id)
       .filter((id): id is string => typeof id === 'string'),
   );
