@@ -2,7 +2,7 @@
 
 |  |  |
 | :---- | :---- |
-| **Specification version** | `1.0.0-rc.1` |
+| **Specification version** | `1.0.0-rc.2` |
 | **Status** | `release-candidate` — suitable for controlled production pilots; promote to `1.0.0` only after resolver, anchoring, and migration interoperability tests pass |
 | **Consumers** | AI agents, Agentic Oracles, Qi workflows, SDK automation, governance assistants, domain operators |
 | **Purpose** | The index operating document an AI agent loads before acting within an IXO entity domain |
@@ -11,7 +11,7 @@
 
 `domain.md` is the IXO-domain analogue of `claude.md` / `skill.md` / `design.md`: a persistent, machine-first context file that tells an agent **what domain it is in, where authority lives, what state is canonical, what it may inspect, what it may propose, and what it must never do without explicit authority.**
 
-It indexes and constrains IXO state; it does **not** replace it. The IID/DID document and IXO Protocol remain canonical. `domain.md` adds the operating context — controllers, services, resources, rights, claims, linked entities, accounts, flows, agent authority — that raw identifiers do not carry.
+It indexes and constrains IXO state; it does **not** replace it. The IID/DID document and IXO Protocol remain canonical. `domain.md` adds the operating context — constitution, controllers, services, resources, rights, claims, linked entities, accounts, flows, and agent authority — that raw identifiers do not carry.
 
 The keywords **MUST**, **MUST NOT**, **SHOULD**, and **MAY** are used as described by RFC 2119 and RFC 8174 when they appear in capitals. The JSON Schema is normative for frontmatter shape and primitive constraints; this document is normative for semantic, authorization, lifecycle, and runtime behavior. If the two artifacts disagree, validation **MUST** fail with `spec-artifact-conflict`; an implementation **MUST NOT** choose whichever interpretation is more permissive. On a conflict between a conforming `domain.md` and live canonical domain state, agents apply §6.
 
@@ -45,9 +45,10 @@ Passing static conformance never proves runtime authorization.
 
 1. **Legible before active.** An agent loads the operating brief before it calls a tool, queries a service, submits a claim, mutates state, or votes.
 2. **Preserve source-of-truth boundaries.** Protocol state, IID records, Blocksync graph reads, Matrix rooms, claims, evidence, rubrics, and UDIDs are distinct authorities and **MUST NOT** collapse into one opaque context. Protocol owns transaction/state truth; Blocksync is a read projection of it.
-3. **Operationalise IID properties.** Each of `controllers`, `services`, `resources`, `rights`, `claims`, `linked_entities`, `accounts` carries the extra context needed to act, not just IDs (§4–§5).
-4. **Progressive disclosure.** Load frontmatter \+ brief first; open deeper sections only when the task requires them (§3).
-5. **Bounded agency by default.** Read and propose before execute. Human, governance, or protocol review is mandatory for high-value, irreversible, ambiguous, disputed, or authority-sensitive actions.
+3. **Constitution before agency.** Every domain declares whether it has a constitution. Governed and agentic domains identify the norms, instruments, authority sources, procedures, execution mechanisms, and constitutional-AI policy that constrain their agency.
+4. **Operationalise IID properties.** Each of `controllers`, `services`, `resources`, `rights`, `claims`, `linked_entities`, `accounts` carries the extra context needed to act, not just IDs (§4–§5).
+5. **Progressive disclosure.** Load frontmatter \+ brief first; open deeper sections only when the task requires them (§3).
+6. **Bounded agency by default.** Read and propose before execute. Human, governance, or protocol review is mandatory for high-value, irreversible, ambiguous, disputed, or authority-sensitive actions.
 
 ---
 
@@ -63,6 +64,7 @@ Two layers: normative YAML frontmatter, then human-readable Markdown.
 ## Overview
 ## Operating Model
 ## Authority & Control
+## Constitutional Governance
 ## Services
 ## Resources
 ## Rights & Capabilities
@@ -94,6 +96,7 @@ Three passes. Each pass references **only keys that exist in the schema (§4).**
 version • kind • conformance • document_revision • domain.id • domain.type
 source_of_truth                       (esp. iid_document, conflict_resolution_order)
 documents                             (index + cids only; content loads per each entry's disclosure_pass)
+constitution                          (status, subject, type, instruments, authority, execution, AI policy)
 agent_default_mode                    (mode, human_review_required_for)
 controllers.summary
 rights.agent_baseline
@@ -113,7 +116,8 @@ Purpose: never act before authority and source-of-truth boundaries are known. **
 | Use Matrix / private rooms | `services` (type `matrix`), `pods.matrix_room`, `privacy`, `agents` | POD, Flows & Agents; Privacy & Source-of-Truth Boundaries |
 | Move funds / settle | `accounts`, `rights`, `claims`, `pods.flows`, `agent_default_mode.human_review_required_for` | Accounts & Value; Claims; Playbooks |
 | Traverse related entities | `linked_entities`, `graph_policy`, `privacy` | Linked Entities; Privacy & Source-of-Truth Boundaries |
-| Participate in governance | `controllers`, `governance`, `rights`, `claims` | Authority & Control; Playbooks |
+| Participate in governance | `constitution`, `controllers`, `governance`, `rights`, `claims` | Authority & Control; Constitutional Governance; Playbooks |
+| Evaluate or execute as an agent | `constitution`, `agent_default_mode`, `agents`, `rights`, `services`, `resources` | Constitutional Governance; Rights & Capabilities; POD, Flows & Agents |
 
 ### Pass 3 — Deep context, only when the task requires it
 
@@ -127,7 +131,7 @@ Schemas, rubrics, legal terms, protocol specs, evidence packages, account polici
 
 ### 4.1 Recognized top-level keys
 
-**Core (always valid):** `version`, `kind`, `conformance`, `document_revision`, `name`, `description`, `last_updated`, `maintainers`, `domain`, `source_of_truth`, `documents`, `agent_default_mode`, `controllers`, `services`, `resources`, `rights`, `claims`, `linked_entities`, `accounts`, `pods`, `agents`, `privacy`, `graph_policy`, `validation`, `critical_do_not`.
+**Core (always valid):** `version`, `kind`, `conformance`, `document_revision`, `name`, `description`, `last_updated`, `maintainers`, `domain`, `source_of_truth`, `documents`, `constitution`, `agent_default_mode`, `controllers`, `services`, `resources`, `rights`, `claims`, `linked_entities`, `accounts`, `pods`, `agents`, `privacy`, `graph_policy`, `validation`, `critical_do_not`.
 
 **Conditional type blocks (valid only when `domain.type` matches, see §7):** `governance`, `protocols`, `asset`, `deed`, `protocol`, `investment`.
 
@@ -145,11 +149,11 @@ An unknown, unprefixed top-level key produces a **warning**.
 The block below is readable notation, not a substitute for `domain-md.schema.json`. A production validator **MUST** validate against the matching JSON Schema before applying the semantic lint rules in §13.
 
 ```
-version: "1.0.0-rc.1"
+version: "1.0.0-rc.2"
 kind: "domain.md"
 conformance:
-  spec_version: "1.0.0-rc.1"
-  schema: "urn:ixo:domain-md:schema:1.0.0-rc.1"
+  spec_version: "1.0.0-rc.2"
+  schema: "urn:ixo:domain-md:schema:1.0.0-rc.2"
   profile: "authoring_draft|persisted_draft|anchored|runtime"
 document_revision: string                 # monotonic domain-controlled revision, e.g. semver or date-build id
 name: string
@@ -212,7 +216,8 @@ documents:
     verified_at: "YYYY-MM-DDTHH:mm:ssZ" | null
   not_applicable: [ "governance|data-policy|agents|operations" ]   # surfaces this domain lacks; suppresses operational-doc warnings
   entries:
-    - role: "description|changelog|manifest|operations|governance|data-policy|agents|compliance|risk-register|custom"
+    - id: string                         # unique stable identifier used by constitution.instruments
+      role: "description|changelog|manifest|operations|governance|data-policy|agents|compliance|risk-register|custom"
       category: "universal|manifest|operational|advanced|extension"
       manifest_type: "charter|dossier|prospectus|terms|specification|datasheet|device-profile|custom" | null  # only when category: manifest
       name: string
@@ -229,7 +234,50 @@ documents:
       access_policy: "public|controller_only|role_based|capability_based|matrix_room|private|custom"
       agent_use: { read: boolean, cite: boolean, summarize: boolean }   # context only — never transform/write
       freshness: { last_verified: "YYYY-MM-DD" | null, max_age: string | null }
-      supersedes: string | null         # prior manifest/doc cid, for amendments
+      supersedes: string | null         # prior documents.entries[].id, for amendments
+
+constitution:
+  status: "not_applicable|draft|adopted|in_force|suspended|superseded"
+  reason: string | null                 # required when status is not_applicable
+  subject: "did:ixo:...|urn:uuid:..."   # MUST exactly equal domain.id
+  type: string                          # constitutional type IRI from the IXO constitutional vocabulary
+  legal_effect:                         # required unless status is not_applicable
+    status: "none|claimed|verified|unknown"
+    jurisdiction: string | null
+    authority_evidence: [ string ]
+  norms: [ string ]                     # resource IDs or immutable external references
+  instruments:
+    - document_ref: string              # documents.entries[].id
+      type: string                      # constitutional instrument IRI
+      functions: [ "constitutive|governing|amending|interpretive|executable" ]
+      canonical: boolean
+      effective_from: "YYYY-MM-DDTHH:mm:ssZ" | null
+      effective_until: "YYYY-MM-DDTHH:mm:ssZ" | null
+  governance:
+    authority_sources: [ string ]       # document/resource IDs or canonical external references
+    decision_procedure: string | null
+    amendment_procedure: string | null
+    interpretation_procedure: string | null
+    dispute_resolution_procedure: string | null
+    suspension_procedure: string | null
+    dissolution_procedure: string | null
+  execution:
+    mode: "human_interpreted|machine_assisted|machine_executable|hybrid"
+    implementations: [ string ]
+    conformance_tests: [ string ]
+    enforcement_points: [ string ]
+    failure_policy: "deny|pause_and_escalate"
+    human_review_required_for: [ string ]
+  constitutional_ai:
+    mode: "none|context_only|critique_and_revise|policy_evaluate|hybrid"
+    applies_to_agents: [ string ]
+    principles: [ string ]
+    critique_procedure: string | null
+    revision_procedure: string | null
+    decision_procedure: string | null
+    model_profile: string | null
+    conflict_policy: "canonical_authority_prevails"
+    audit_record: string | null
 
 agent_default_mode:
   mode: "read_only|propose_only|bounded_evaluate|bounded_execute"   # the capability CEILING (§8)
@@ -478,10 +526,10 @@ validation:
   lint_profile: "strict|standard|permissive"
   max_document_bytes: integer               # MUST be <= 1048576 for interoperable domain.md files
   max_linked_document_bytes: integer        # MUST be <= 2097152 for interoperable text documents
-  required_sections: [ "Overview", "Authority & Control", "Rights & Capabilities", "Privacy & Source-of-Truth Boundaries", "Do's and Don'ts" ]
-  required_frontmatter: [ "version", "kind", "conformance", "document_revision", "domain.id", "source_of_truth", "controllers.summary", "rights.agent_baseline", "privacy.default_policy", "agent_default_mode.mode" ]
+  required_sections: [ "Overview", "Authority & Control", "Constitutional Governance", "Rights & Capabilities", "Privacy & Source-of-Truth Boundaries", "Do's and Don'ts" ]
+  required_frontmatter: [ "version", "kind", "conformance", "document_revision", "domain.id", "source_of_truth", "constitution", "controllers.summary", "rights.agent_baseline", "privacy.default_policy", "agent_default_mode.mode" ]
   stale_after: "P30D"
-  review_required_for_changes_to: [ "controllers", "rights", "accounts", "privacy", "source_of_truth", "claims.collections.evaluation_kit", "claims.collections.rubric", "agents", "agent_default_mode" ]   # see §14
+  review_required_for_changes_to: [ "constitution", "controllers", "rights", "accounts", "privacy", "source_of_truth", "claims.collections.evaluation_kit", "claims.collections.rubric", "agents", "agent_default_mode" ]   # see §14
 
 critical_do_not:
   - "Do not treat chat history, a model response, or private reasoning as canonical domain state."
@@ -490,6 +538,82 @@ critical_do_not:
   - "Do not move value unless account policy, claim outcome, authority, and human-review requirements are all satisfied."
   - "Do not expose private evidence, personal data, or regulated data in public protocol fields."
 ```
+
+### 4.3.1 Constitutional model and catalogue
+
+The canonical vocabulary is `https://w3id.org/ixo/vocab/v1/constitution#` (`con:`). It makes four
+non-interchangeable commitments:
+
+1. A `con:ConstitutionalSubject` is the entity, institutional arrangement, collective, protocol, or agentic
+   system being governed.
+2. A `con:Constitution` is the authoritative and relatively fundamental normative system that constitutes,
+   governs, constrains, and enables that subject.
+3. A `con:ConstitutionalInstrument` is a document or artifact that creates, expresses, amends, interprets,
+   or evidences part of that constitution.
+4. A `con:ConstitutionalMechanism` is a human, institutional, technical, or hybrid procedure that evaluates,
+   applies, enforces, records, or escalates constitutional norms.
+
+Constitutions contain `con:ConstitutiveNorm` rules that establish institutional facts, `con:PrescriptiveNorm`
+rules that create permissions, prohibitions, duties, and entitlements, and `con:ProceduralNorm` rules for
+valid decisions, amendments, interpretations, disputes, suspensions, and dissolution. These distinctions are
+grounded in [FIBO](https://spec.edmcouncil.org/fibo/index.html),
+[OASIS LegalRuleML](https://docs.oasis-open.org/legalruleml/legalruleml-core-spec/v1.0/legalruleml-core-spec-v1.0.html),
+the [W3C Organization Ontology](https://www.w3.org/TR/2013/CR-vocab-org-20130625/), and
+[ODRL](https://www.w3.org/TR/odrl-model/). JSON-LD field semantics follow
+[JSON-LD 1.1](https://www.w3.org/TR/json-ld11/). They do not make this specification jurisdiction-specific
+legal advice.
+
+**Canonical constitutional catalogue**
+
+| Subject | Constitution type | Common instruments |
+| :---- | :---- | :---- |
+| state | `con:StateConstitution` | `con:ConstitutionDocument`, `con:BasicLaw` |
+| international organisation | `con:InternationalOrganizationConstitution` | `con:ConstituentTreaty`, `con:OrganizationCharter` |
+| company | `con:CorporateConstitution` | `con:ArticlesOfAssociation`, `con:CorporateCharter`, `con:Bylaws` |
+| trust | `con:TrustConstitution` | `con:TrustDeed`, `con:DeclarationOfTrust`, `con:TestamentaryInstrument` |
+| cooperative | `con:CooperativeConstitution` | `con:CooperativeStatutes`, `con:CooperativeArticles`, `con:Bylaws`, jurisdiction-specific `con:DeedOfFormation` |
+| partnership | `con:PartnershipConstitution` | `con:PartnershipAgreement`, `con:PartnershipDeed` |
+| LLC-like entity | `con:OrganizationalConstitution` | `con:OperatingAgreement` |
+| foundation | `con:FoundationConstitution` | `con:FoundationCharter`, `con:FoundationDeed`, `con:FoundationStatutes` |
+| public body | `con:PublicBodyConstitution` | `con:EnablingStatute` |
+| membership organisation | `con:OrganizationalConstitution` | `con:OrganizationConstitutionDocument`, `con:Bylaws` |
+| project / POD / marketplace | `con:ProjectConstitution` | `con:ProjectCharter`, `con:CollectiveCharter`, `con:MarketplaceCharter` |
+| protocol | `con:ProtocolConstitution` | `con:ProtocolSpecification`, `con:GovernancePolicy` |
+| DAO | `con:DAOConstitution` | `con:DAOCharter`, `con:GovernancePolicy`, `con:ExecutableGovernancePolicy` |
+| agentic twin | `con:AgenticConstitution` | `con:AgenticConstitutionDocument` |
+| regulated fund or scheme | `con:SchemeConstitution` | `con:SchemeRules` |
+
+This catalogue is a jurisdiction-neutral normalization. A trust deed is one possible trust instrument; it is
+not the trust or a universal prerequisite. A cooperative deed of formation is jurisdiction-specific. An
+instrument's title, CID, executable form, or model use never proves adoption, legal effect, current validity,
+or authority. Representative legal anchors include the
+[UK Companies Act 2006 section 17](https://www.legislation.gov.uk/ukpga/2006/46/section/17),
+[HCCH Trusts Convention](https://www.hcch.net/en/instruments/conventions/full-text/?cid=59),
+[European Cooperative Society Regulation](https://eur-lex.europa.eu/legal-content/EN/AUTO/?uri=CELEX:02003R1435-20030821),
+and [UN Charter](https://www.un.org/en/about-us/un-charter).
+
+**Tiered requirement.** Every document declares constitutional status. `dao`, `organisation`, `project`,
+`protocol`, `marketplace`, and `pod` domains, domains with declared agents, domains permitting agent
+controllers, and domains using `bounded_evaluate` or `bounded_execute` MUST provide the complete package.
+Only a passive domain with no agent/controller agency or executable governance and a `read_only` or
+`propose_only` ceiling may use `not_applicable`, and it MUST explain why. `domain.type: deed` identifies a
+deed subject; it is not automatically a constitution.
+
+**Legal effect.** A de-novo constitution defaults to operational effect. `legal_effect.status: verified`
+requires a jurisdiction plus externally resolvable authority evidence. Static validation verifies only
+structure and local references; runtime must verify adoption, competence, currency, amendment, and
+jurisdiction against canonical sources.
+
+**Executable governance and constitutional AI.** `machine_executable` and `hybrid` execution MUST identify
+immutable implementations, conformance tests, enforcement points, a fail-closed policy, and human-review
+gates. Constitutional AI MAY supply principles as model context, critique and revise proposals, or evaluate a
+policy, following the critique-and-revision mechanism described in
+[Constitutional AI](https://arxiv.org/abs/2212.08073). It MUST NOT grant identity, rights, capabilities,
+approvals, or execution authority. On conflict,
+canonical authority prevails. Audit records contain principle IDs, reason codes, outcomes, evidence
+references, and execution receipts; they MUST NOT require or expose private chain-of-thought.
+Every declared agent controller MUST be included in `constitutional_ai.applies_to_agents`, so its proposals
+are evaluated against the same identified principles and procedures before live authorization is resolved.
 
 ### 4.4 Linked documents
 
@@ -576,7 +700,7 @@ Rules:
 - **Blocksync is never independently authoritative.** It is a read projection; on any divergence from `protocol_state`, protocol state governs and the projection is treated as stale.
 - **A model response, transcript, scratchpad, or dashboard is never sufficient authority** for settlement, credential issuance, controller change, or high-value state update.
 - Prose **MUST NOT** restate a different order. If `domain.md` conflicts with resolved protocol/IID state, the file is wrong (lint: `canonical-conflict`).
-- **Linked documents (§4.4) resolve at this `domain_md` tier** — advisory and interpretive, never authorizing. A manifest is additionally authoritative for intent, terms, and facts-of-record at issuance, but defers to canonical state for any on-chain fact.
+- **Constitutions and linked documents resolve at this `domain_md` tier** — they constrain and explain intended governance but do not self-authorize. A manifest is additionally authoritative for intent, terms, and facts-of-record at issuance, but defers to canonical state for any on-chain fact. Current adoption, controller, right, capability, revocation, approval, and execution authority must resolve from the competent canonical source.
 
 ---
 
@@ -702,11 +826,13 @@ Separate **public protocol metadata** from **private service-layer data**:
 The hot path an agent runs for every task:
 
 1. **Load** — parse safely; validate the declared conformance profile against the matching schema; verify `kind: domain.md`; verify `domain.id` and, for anchored/runtime profiles, `source_of_truth.iid_document`. Treat missing authority as denial.
-2. **Resolve** — resolve the current IID/DID document before stateful work; use Blocksync for graph reads only when configured and consistent with protocol state; use Matrix only for permitted context; resolve linked resources by URI/CID/hash and check freshness.
-3. **Authorize** — run §8 authorization resolution; check Flow state before any claim, evaluation, payment, credential, or transition.
-4. **Act** — cite evidence for every evidence-based output; emit Evaluation Claims where configured; refuse anything exceeding delegated authority.
-5. **Record** — write determinations as UDIDs at determination points; log authority, inputs, evidence references, tool results, policy/rubric versions, reason codes, and outputs per the agent's `logging` policy. Never require, store, or expose private chain-of-thought; an audit trace contains decision-relevant facts and reproducible rationale only.
-6. **Escalate** — route to human/governance review whenever the action is in `human_review_required_for` or the case is ambiguous, disputed, or high-value.
+2. **Resolve constitution** — require the tier-appropriate constitutional declaration; resolve exact instrument bytes, effective/superseded status, norms, procedures, execution artifacts, and constitutional-AI profile. A missing or conflicting constitutional dependency fails closed.
+3. **Resolve live authority** — resolve the current IID/DID and protocol state before stateful work; verify adoption, controllers, rights, capabilities, revocation, approvals, and enforcement-point authority. Use Blocksync only as a consistent read projection and Matrix only for permitted context.
+4. **Constitutional evaluate** — evaluate the proposed action against applicable constitutive, prescriptive, and procedural norms. Constitutional AI may supply context, critique/revision, or policy evaluation but may not authorize the action.
+5. **Authorize** — run §8 authorization resolution and check Flow state before any claim, evaluation, payment, credential, or transition. Both constitutional conformance and live authorization must pass.
+6. **Act** — cite evidence for every evidence-based output; emit Evaluation Claims where configured; refuse anything exceeding delegated authority.
+7. **Record** — write determinations as UDIDs at determination points; log authority, principle IDs, inputs, evidence references, tool results, policy/rubric versions, reason codes, outcomes, and receipts. Never require, store, or expose private chain-of-thought; an audit trace contains decision-relevant facts and reproducible rationale only.
+8. **Escalate or amend** — route to human/governance review whenever the action is gated, ambiguous, disputed, or high-value. Constitutional change follows the declared amendment procedure and produces a new instrument, document CID, index revision, and canonical approval evidence.
 
 **Stop and escalate (never auto-proceed) when:** evidence is ambiguous; a claim is disputed; the action is high-value or irreversible; a credential, controller, rights, or rubric change is implied; value moves; or `domain.md` conflicts with resolved protocol/IID state.
 
@@ -750,6 +876,14 @@ The hot path an agent runs for every task:
 | `unknown-top-level-key` | warning | Unprefixed top-level key not in §4.1 |
 | `missing-description-doc` | error | No `documents` entry with role `description` |
 | `missing-changelog-doc` | error | No `documents` entry with role `changelog` |
+| `constitution-required` | error | A domain lacks the tier-appropriate constitutional package |
+| `constitution-not-applicable-invalid` | error | A governed or agentic domain declares its constitution not applicable |
+| `constitutional-instrument-unresolved` | error | An instrument does not resolve to a unique `documents.entries[].id` |
+| `constitutional-authority-unverified` | error | Legal effect or constitutional procedure lacks resolvable authority evidence |
+| `constitutional-execution-incomplete` | error | Executable governance lacks implementation, tests, enforcement, or fail-closed policy |
+| `constitutional-ai-incomplete` | error | Agentic constitutional-AI principles, procedures, agent binding, or audit record are incomplete |
+| `constitution-conflicts-canonical` | error | Effective periods conflict or a superseded instrument remains simultaneously canonical |
+| `constitutional-amendment-unapproved` | error | An amending instrument lacks an amendment procedure or authority source |
 | `document-without-cid` | error | A `persisted_draft`, `anchored`, or `runtime` document entry lacks a verified `cid` |
 | `duplicate-document-role` | error | A canonical role (`description` / `changelog` / manifest) appears more than once |
 | `manifest-overrides-canonical` | error | A manifest asserts a fact that conflicts with canonical state |
@@ -771,7 +905,7 @@ The hot path an agent runs for every task:
 
 A diff tool classifies changes by operational risk:
 
-- **Security-sensitive — controller/governance review required:** `controllers`, `rights`, `accounts`, `privacy`, `source_of_truth`, `claims.collections.evaluation_kit`, `claims.collections.rubric`, `agents.permitted_outputs`, `agents.forbidden_outputs`, `agent_default_mode`, `critical_do_not`.
+- **Security-sensitive — controller/governance review required:** `constitution`, `controllers`, `rights`, `accounts`, `privacy`, `source_of_truth`, `claims.collections.evaluation_kit`, `claims.collections.rubric`, `agents.permitted_outputs`, `agents.forbidden_outputs`, `agent_default_mode`, `critical_do_not`.
 - **Operational — domain-operator review required:** `services`, `resources`, `linked_entities`, `pods`, `flows`, `claims.collections.evidence_requirements`, `graph_policy`.
 - **Informational — maintainer review only:** `description`, Markdown Overview/Playbooks/Changelog, `x-*` fields.
 
@@ -789,11 +923,11 @@ Document roles map onto the same tiers: a **manifest**, `governance`, `data-poli
 
 ```
 ---
-version: "1.0.0-rc.1"
+version: "1.0.0-rc.2"
 kind: "domain.md"
 conformance:
-  spec_version: "1.0.0-rc.1"
-  schema: "urn:ixo:domain-md:schema:1.0.0-rc.1"
+  spec_version: "1.0.0-rc.2"
+  schema: "urn:ixo:domain-md:schema:1.0.0-rc.2"
   profile: "authoring_draft"
 document_revision: "0.1.0"
 name: "Verified Field Services POD"
@@ -826,9 +960,43 @@ documents:
   anchoring: { method: "none", reference: null, cid: null, verified_at: null }
   not_applicable: []
   entries:
-    - { role: "description", category: "universal", manifest_type: null, name: "Verified Field Services — Description", uri: null, cid: null, media_type: "text/markdown", version: "1.2.0", owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "interpretive", disclosure_pass: 2, required_for_tasks: [ "onboarding", "read_domain_state" ], sensitivity: "public", access_policy: "public", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P180D" }, supersedes: null }
-    - { role: "changelog", category: "universal", manifest_type: null, name: "Verified Field Services — Changelog", uri: null, cid: null, media_type: "text/markdown", version: null, owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "advisory", disclosure_pass: 2, required_for_tasks: [ "submit_or_evaluate_claim", "move_funds_or_settle" ], sensitivity: "internal", access_policy: "role_based", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P30D" }, supersedes: null }
-    - { role: "manifest", category: "manifest", manifest_type: "charter", name: "Marketplace Operators — Charter", uri: null, cid: null, media_type: "text/markdown", version: "2.0.0", owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "defining", disclosure_pass: 3, required_for_tasks: [ "participate_in_governance", "diligence", "dispute" ], sensitivity: "public", access_policy: "public", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P365D" }, supersedes: null }
+    - { id: "description", role: "description", category: "universal", manifest_type: null, name: "Verified Field Services — Description", uri: null, cid: null, media_type: "text/markdown", version: "1.2.0", owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "interpretive", disclosure_pass: 2, required_for_tasks: [ "onboarding", "read_domain_state" ], sensitivity: "public", access_policy: "public", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P180D" }, supersedes: null }
+    - { id: "changelog", role: "changelog", category: "universal", manifest_type: null, name: "Verified Field Services — Changelog", uri: null, cid: null, media_type: "text/markdown", version: null, owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "advisory", disclosure_pass: 2, required_for_tasks: [ "submit_or_evaluate_claim", "move_funds_or_settle" ], sensitivity: "internal", access_policy: "role_based", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P30D" }, supersedes: null }
+    - { id: "domain-charter", role: "manifest", category: "manifest", manifest_type: "charter", name: "Marketplace Operators — Charter", uri: null, cid: null, media_type: "text/markdown", version: "2.0.0", owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "defining", disclosure_pass: 3, required_for_tasks: [ "participate_in_governance", "diligence", "dispute" ], sensitivity: "public", access_policy: "public", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P365D" }, supersedes: null }
+constitution:
+  status: "draft"
+  reason: null
+  subject: "urn:uuid:123e4567-e89b-42d3-a456-426614174000"
+  type: "con:ProjectConstitution"
+  legal_effect: { status: "unknown", jurisdiction: null, authority_evidence: [] }
+  norms: [ "resource:constitutional-principles-v1" ]
+  instruments:
+    - { document_ref: "domain-charter", type: "con:ProjectCharter", functions: [ "constitutive", "governing" ], canonical: true, effective_from: null, effective_until: null }
+  governance:
+    authority_sources: [ "domain-charter" ]
+    decision_procedure: "resource:project-decision-procedure-v1"
+    amendment_procedure: "resource:project-amendment-procedure-v1"
+    interpretation_procedure: "resource:project-interpretation-procedure-v1"
+    dispute_resolution_procedure: "resource:project-dispute-procedure-v1"
+    suspension_procedure: "resource:project-suspension-procedure-v1"
+    dissolution_procedure: "resource:project-dissolution-procedure-v1"
+  execution:
+    mode: "machine_assisted"
+    implementations: [ "resource:project-constitutional-policy-v1" ]
+    conformance_tests: [ "resource:project-constitutional-tests-v1" ]
+    enforcement_points: [ "#matrix" ]
+    failure_policy: "pause_and_escalate"
+    human_review_required_for: [ "payment_release", "rights_change", "constitutional_amendment" ]
+  constitutional_ai:
+    mode: "critique_and_revise"
+    applies_to_agents: [ "did:ixo:agent:evidence-review-oracle" ]
+    principles: [ "resource:constitutional-principles-v1" ]
+    critique_procedure: "resource:constitutional-critique-v1"
+    revision_procedure: "resource:constitutional-revision-v1"
+    decision_procedure: null
+    model_profile: "resource:constitutional-model-profile-v1"
+    conflict_policy: "canonical_authority_prevails"
+    audit_record: "resource:constitutional-audit-schema-v1"
 agent_default_mode:
   mode: "propose_only"
   overrides: { move_value: false, issue_credentials: false, change_rights: false, change_rubrics: false }
@@ -899,6 +1067,19 @@ rights:
       conditions: { flow_state: "review_required", claim_type: "service_delivery", max_value: null, not_before: null, expiry: null, role_required: "verifier", credential_required: null, human_review: true }
       revocation: { method: "controller-policy", authority: [ "did:ixo:dao:marketplace-operators" ] }
       audit: { record_as: "udid", signature_required: true }
+agents:
+  entries:
+    - id: "did:ixo:agent:evidence-review-oracle"
+      name: "Evidence Review Oracle"
+      type: "oracle"
+      operator: "did:ixo:dao:marketplace-operators"
+      service: "#matrix"
+      p_functions: [ "evaluate_claim" ]
+      permitted_context: { domains: [ "urn:uuid:123e4567-e89b-42d3-a456-426614174000" ], claims: [ "claim-collection:field-services" ], resources: [ "rubric-service-delivery-v1" ], rooms: [ "#matrix" ] }
+      permitted_outputs: [ "evaluation_claim", "review_recommendation" ]
+      forbidden_outputs: [ "payment_authorization", "rights_grant", "constitutional_amendment" ]
+      logging: { must_cite_evidence: true, must_record_authority: true, must_emit_trace: true, trace_visibility: "controller_only" }
+      escalation: { human_role: "verifier", matrix_room: "#matrix", timeout: "PT24H" }
 claims:
   collections:
     - id: "claim-collection:field-services"
@@ -975,10 +1156,10 @@ validation:
   lint_profile: "strict"
   max_document_bytes: 1048576
   max_linked_document_bytes: 2097152
-  required_sections: [ "Overview", "Authority & Control", "Rights & Capabilities", "Privacy & Source-of-Truth Boundaries", "Do's and Don'ts" ]
-  required_frontmatter: [ "version", "kind", "conformance", "document_revision", "domain.id", "source_of_truth", "controllers.summary", "rights.agent_baseline", "privacy.default_policy", "agent_default_mode.mode" ]
+  required_sections: [ "Overview", "Authority & Control", "Constitutional Governance", "Rights & Capabilities", "Privacy & Source-of-Truth Boundaries", "Do's and Don'ts" ]
+  required_frontmatter: [ "version", "kind", "conformance", "document_revision", "domain.id", "source_of_truth", "constitution", "controllers.summary", "rights.agent_baseline", "privacy.default_policy", "agent_default_mode.mode" ]
   stale_after: "P30D"
-  review_required_for_changes_to: [ "controllers", "rights", "accounts", "privacy", "source_of_truth", "claims.collections.evaluation_kit", "claims.collections.rubric", "agents", "agent_default_mode" ]
+  review_required_for_changes_to: [ "constitution", "controllers", "rights", "accounts", "privacy", "source_of_truth", "claims.collections.evaluation_kit", "claims.collections.rubric", "agents", "agent_default_mode" ]
 critical_do_not:
   - "Do not release payment without an approved UDID and account authorization."
   - "Do not expose private evidence in public protocol metadata."
@@ -989,6 +1170,8 @@ critical_do_not:
 Coordinates verified field-service delivery between buyers, providers, verifiers, funders, and evidence-review agents. Full description: `documents[role=description]`; founding mandate and principles: `documents[role=manifest]` (charter).
 ## Authority & Control
 The Marketplace Operators DAO controls domain settings, service configuration, account policy, and rights delegation. Mandate and non-negotiable commitments: `documents[role=manifest]` (charter).
+## Constitutional Governance
+The project constitution is embodied by `documents[id=domain-charter]`. Constitutional-AI critique may revise an agent proposal, but neither the model nor the charter self-authorizes action; current rights, capabilities, approvals, controller state, and protocol state prevail.
 ## Rights & Capabilities
 Agents are default-denied. The Evidence Review Oracle may create an Evaluation Claim only under its scoped, unexpired right; a verifier with the determination right records the reviewed UDID.
 ## Claims, Evidence & Evaluation
@@ -1010,17 +1193,17 @@ A production implementation **MUST** execute these gates in order and emit a mac
 1. **Acquire bytes** — enforce the declared byte limit before parsing; preserve the exact bytes for CID verification; reject compression bombs and ambiguous character encodings.
 2. **Parse safely** — use YAML 1.2 core semantics with duplicate keys, aliases, anchors, merge keys, and custom tags disabled. YAML is data, never executable configuration.
 3. **Validate structure** — select `domain-md.schema.json` by the exact declared spec version; reject unavailable or mismatched schema artifacts; apply profile-specific JSON Schema rules.
-4. **Validate semantics** — run §13 lints, unique-ID and local-reference checks, class-binding checks, graph/Flow reachability, denomination-safe value checks, and prose/frontmatter consistency checks.
-5. **Verify integrity** — verify each required CID over the exact returned bytes using supported multicodecs and hashes. Do not assume that two storage systems produce equivalent CIDs unless their codec, chunking, and hash contracts are explicitly compatible.
-6. **Resolve runtime state** — for `anchored` and `runtime`, resolve canonical IID/protocol state and anchoring evidence, then apply fact-scoped conflict resolution.
-7. **Authorize per action** — verify mode ceiling, deny/allow grants, capability/delegation proofs, revocation, trusted time, conditions, Flow state, value denomination, account policy, and human-review proof.
+4. **Validate semantics** — run §13 lints, unique-ID and local-reference checks, constitutional tiering, class-binding checks, graph/Flow reachability, denomination-safe value checks, and prose/frontmatter consistency checks.
+5. **Verify integrity** — verify each required CID, including constitutional instruments and executable implementations, over the exact returned bytes using supported multicodecs and hashes. Do not assume that two storage systems produce equivalent CIDs unless their codec, chunking, and hash contracts are explicitly compatible.
+6. **Resolve runtime state** — for `anchored` and `runtime`, resolve constitutional adoption/effectiveness plus canonical IID/protocol state and anchoring evidence, then apply fact-scoped conflict resolution.
+7. **Authorize per action** — require constitutional evaluation and independently verify mode ceiling, deny/allow grants, capability/delegation proofs, revocation, trusted time, conditions, Flow state, value denomination, account policy, and human-review proof.
 8. **Report** — return spec version, profile, input digest/CID, schema identity, validator version, errors, warnings, resolved canonical references, capability evidence identifiers, and final state. Never include secrets or private evidence in the report.
 
 External retrieval **MUST** use an allowlist of schemes and destinations, block loopback/link-local/private-network targets unless explicitly configured, cap redirects and response bytes, separate authenticated from public fetches, and avoid forwarding authorization headers across origins. Mutable HTTP responses are context only unless verified against an immutable CID or digest.
 
 Conformance fixtures **MUST** include valid authoring, persisted, anchored, and runtime examples plus failures for unsafe YAML, duplicate IDs, invalid class binding, missing CIDs, CID mismatch, stale required documents, broken references, deny/allow conflicts, expired/revoked capabilities, denomination mismatch, incomplete claim contracts, invalid/unreachable Flow transitions, private-data leakage, and canonical-state conflict.
 
-Promotion from `1.0.0-rc.1` to `1.0.0` requires passing the same fixture corpus in at least two independent validators and completing interoperability tests against the production IID resolver, linked-resource anchoring path, content-addressed storage, capability verifier, and one end-to-end claim → UDID → reviewed settlement loop.
+Promotion from `1.0.0-rc.2` to `1.0.0` requires passing the same fixture corpus in at least two independent validators and completing interoperability tests against the production IID resolver, linked-resource anchoring path, content-addressed storage, capability verifier, and one end-to-end claim → UDID → reviewed settlement loop.
 
 ---
 
@@ -1076,3 +1259,8 @@ value.
 ## Grounding
 
 Builds on IXO primitives: DID-anchored IID entity domains (controllers, services, resources, accorded rights, linked claims/entities, accounts); IXO Protocol state truth with Blocksync as an indexed read projection; IXO Matrix as the encrypted collaboration layer; PODs and Qi Flows for coordinated workflows; UDIDs for determination provenance; Agentic Oracles as authority-scoped, evidence-grounded, audit-producing agents; and the claim-evaluation protocol (typed facts → governed rubric → recorded decision). Structurally it follows the `DESIGN.md` pattern: normative YAML tokens first, ordered `##` prose second, explicit consumer behavior for unknown and duplicate content.
+
+The constitutional terms and catalogue use the merged IXO vocabulary at
+`https://w3id.org/ixo/vocab/v1/constitution#`, source commit
+`14df6d10d467712265216bfa6270dc6f59e0863b`. Terms are specialized with RDFS/OWL and organized with SKOS;
+provenance reuses DCTERMS and PROV-O, while permissions, prohibitions, and duties reuse ODRL.

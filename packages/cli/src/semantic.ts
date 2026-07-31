@@ -185,8 +185,9 @@ function documentEntries(value: unknown): DomainRecord[] {
   return records(value, 'entries');
 }
 
-function validateDocuments(frontmatter: DomainRecord, findings: Finding[]): void {
+function validateDocuments(frontmatter: DomainRecord, findings: Finding[]): Set<string> {
   const entries = documentEntries(frontmatter.documents);
+  const ids = uniqueIds(entries, 'document', findings);
   const roles = entries
     .map((entry) => entry.role)
     .filter((role): role is string => typeof role === 'string');
@@ -234,12 +235,20 @@ function validateDocuments(frontmatter: DomainRecord, findings: Finding[]): void
       );
     }
   }
+  return ids;
 }
 
 function validateAuthority(
   frontmatter: DomainRecord,
   findings: Finding[],
-): { rights: Set<string>; resources: Set<string> } {
+): {
+  controllers: Set<string>;
+  rights: Set<string>;
+  resources: Set<string>;
+  services: Set<string>;
+  agents: Set<string>;
+  agentControllers: Set<string>;
+} {
   const controllerEntries = records(frontmatter.controllers, 'entries');
   const controllerIds = uniqueIds(controllerEntries, 'controller', findings);
   const summary =
@@ -261,10 +270,16 @@ function validateAuthority(
   const rightEntries = records(frontmatter.rights, 'entries');
   const rights = uniqueIds(rightEntries, 'right', findings);
   const resources = uniqueIds(records(frontmatter.resources, 'entries'), 'resource', findings);
-  uniqueIds(records(frontmatter.services, 'entries'), 'service', findings);
+  const services = uniqueIds(records(frontmatter.services, 'entries'), 'service', findings);
   uniqueIds(records(frontmatter.linked_entities, 'entries'), 'linked entity', findings);
   uniqueIds(records(frontmatter.pods, 'entries'), 'POD', findings);
-  uniqueIds(records(frontmatter.agents, 'entries'), 'agent', findings);
+  const agents = uniqueIds(records(frontmatter.agents, 'entries'), 'agent', findings);
+  const agentControllers = new Set(
+    controllerEntries
+      .filter((entry) => entry.type === 'agent')
+      .map((entry) => entry.id)
+      .filter((id): id is string => typeof id === 'string'),
+  );
 
   if (isRecord(frontmatter.source_of_truth)) {
     const order = new Set(
@@ -289,7 +304,403 @@ function validateAuthority(
       }
     }
   }
-  return { rights, resources };
+  return {
+    controllers: controllerIds,
+    rights,
+    resources,
+    services,
+    agents,
+    agentControllers,
+  };
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string')
+    : [];
+}
+
+function resolvesReference(value: string, ...sets: Set<string>[]): boolean {
+  return externalReference(value) || sets.some((set) => set.has(value));
+}
+
+function validateConstitution(
+  frontmatter: DomainRecord,
+  documents: Set<string>,
+  resources: Set<string>,
+  services: Set<string>,
+  agents: Set<string>,
+  agentControllers: Set<string>,
+  findings: Finding[],
+): void {
+  const constitution = isRecord(frontmatter.constitution) ? frontmatter.constitution : undefined;
+  if (!constitution) {
+    add(
+      findings,
+      'error',
+      'constitution-required',
+      'Every domain.md 1.0.0-rc.2 document must declare constitutional status.',
+      '/constitution',
+    );
+    return;
+  }
+
+  const domain = isRecord(frontmatter.domain) ? frontmatter.domain : undefined;
+  const subject = typeof domain?.id === 'string' ? domain.id : undefined;
+  if (subject !== undefined && constitution.subject !== subject) {
+    add(
+      findings,
+      'error',
+      'constitution-required',
+      'constitution.subject must exactly equal domain.id.',
+      '/constitution/subject',
+    );
+  }
+
+  const controllerSummary =
+    isRecord(frontmatter.controllers) && isRecord(frontmatter.controllers.summary)
+      ? frontmatter.controllers.summary
+      : undefined;
+  const agentMode =
+    isRecord(frontmatter.agent_default_mode) &&
+    typeof frontmatter.agent_default_mode.mode === 'string'
+      ? frontmatter.agent_default_mode.mode
+      : undefined;
+  const governedTypes = new Set([
+    'dao',
+    'organisation',
+    'project',
+    'protocol',
+    'marketplace',
+    'pod',
+  ]);
+  const agentic =
+    agents.size > 0 ||
+    agentControllers.size > 0 ||
+    controllerSummary?.agent_controllers_allowed === true ||
+    agentMode === 'bounded_evaluate' ||
+    agentMode === 'bounded_execute';
+  const constitutionRequired =
+    (typeof domain?.type === 'string' && governedTypes.has(domain.type)) || agentic;
+
+  if (constitution.status === 'not_applicable') {
+    const declaresConstitutionalPackage = [
+      'legal_effect',
+      'norms',
+      'instruments',
+      'governance',
+      'execution',
+      'constitutional_ai',
+    ].some((field) => field in constitution);
+    if (constitutionRequired || declaresConstitutionalPackage) {
+      add(
+        findings,
+        'error',
+        'constitution-not-applicable-invalid',
+        'Only passive domains without a constitutional package, agents, agent controllers, bounded agency, or executable governance may declare constitution.status as not_applicable.',
+        '/constitution/status',
+      );
+    }
+    return;
+  }
+
+  const legalEffect = isRecord(constitution.legal_effect) ? constitution.legal_effect : undefined;
+  const governance = isRecord(constitution.governance) ? constitution.governance : undefined;
+  const execution = isRecord(constitution.execution) ? constitution.execution : undefined;
+  const constitutionalAI = isRecord(constitution.constitutional_ai)
+    ? constitution.constitutional_ai
+    : undefined;
+  const instruments = Array.isArray(constitution.instruments)
+    ? constitution.instruments.filter(isRecord)
+    : [];
+  if (
+    !legalEffect ||
+    !governance ||
+    !execution ||
+    !constitutionalAI ||
+    instruments.length === 0 ||
+    stringArray(constitution.norms).length === 0
+  ) {
+    add(
+      findings,
+      'error',
+      'constitution-required',
+      'A constitutional package requires legal effect, norms, instruments, governance, execution, and constitutional-AI declarations.',
+      '/constitution',
+    );
+  }
+  for (const norm of stringArray(constitution.norms)) {
+    if (!resolvesReference(norm, resources)) {
+      add(
+        findings,
+        'error',
+        'constitution-required',
+        `Constitutional norm ${norm} does not resolve.`,
+        '/constitution/norms',
+      );
+    }
+  }
+
+  const instrumentByDocument = new Map<string, DomainRecord>();
+  for (const instrument of instruments) {
+    if (typeof instrument.document_ref !== 'string' || !documents.has(instrument.document_ref)) {
+      add(
+        findings,
+        'error',
+        'constitutional-instrument-unresolved',
+        `Constitutional instrument ${String(instrument.document_ref)} does not resolve to documents.entries[].id.`,
+        '/constitution/instruments',
+      );
+      continue;
+    }
+    instrumentByDocument.set(instrument.document_ref, instrument);
+    if (
+      typeof instrument.effective_from === 'string' &&
+      typeof instrument.effective_until === 'string' &&
+      Date.parse(instrument.effective_from) > Date.parse(instrument.effective_until)
+    ) {
+      add(
+        findings,
+        'error',
+        'constitution-conflicts-canonical',
+        `Instrument ${instrument.document_ref} ends before it becomes effective.`,
+        '/constitution/instruments',
+      );
+    }
+  }
+
+  if (
+    constitution.status === 'superseded' &&
+    instruments.some((instrument) => instrument.canonical === true)
+  ) {
+    add(
+      findings,
+      'error',
+      'constitution-conflicts-canonical',
+      'A superseded constitution cannot retain a canonical instrument.',
+      '/constitution/instruments',
+    );
+  }
+
+  for (const entry of documentEntries(frontmatter.documents)) {
+    if (typeof entry.id !== 'string' || typeof entry.supersedes !== 'string') continue;
+    const current = instrumentByDocument.get(entry.id);
+    const previous = instrumentByDocument.get(entry.supersedes);
+    if (current?.canonical === true && previous?.canonical === true) {
+      add(
+        findings,
+        'error',
+        'constitution-conflicts-canonical',
+        `Constitutional instruments ${entry.id} and ${entry.supersedes} cannot both be canonical when one supersedes the other.`,
+        '/constitution/instruments',
+      );
+    }
+  }
+
+  if (
+    legalEffect?.status === 'verified' &&
+    (typeof legalEffect.jurisdiction !== 'string' ||
+      stringArray(legalEffect.authority_evidence).length === 0)
+  ) {
+    add(
+      findings,
+      'error',
+      'constitutional-authority-unverified',
+      'Verified legal effect requires a jurisdiction and at least one authority-evidence reference.',
+      '/constitution/legal_effect',
+    );
+  }
+  for (const reference of stringArray(legalEffect?.authority_evidence)) {
+    if (!resolvesReference(reference, resources)) {
+      add(
+        findings,
+        'error',
+        'constitutional-authority-unverified',
+        `Legal authority evidence ${reference} does not resolve.`,
+        '/constitution/legal_effect/authority_evidence',
+      );
+    }
+  }
+
+  for (const reference of stringArray(governance?.authority_sources)) {
+    if (!resolvesReference(reference, documents, resources)) {
+      add(
+        findings,
+        'error',
+        'constitutional-authority-unverified',
+        `Constitutional authority source ${reference} does not resolve.`,
+        '/constitution/governance/authority_sources',
+      );
+    }
+  }
+  for (const field of [
+    'decision_procedure',
+    'amendment_procedure',
+    'interpretation_procedure',
+    'dispute_resolution_procedure',
+    'suspension_procedure',
+    'dissolution_procedure',
+  ]) {
+    const reference = governance?.[field];
+    if (typeof reference === 'string' && !resolvesReference(reference, documents, resources)) {
+      add(
+        findings,
+        'error',
+        'constitutional-authority-unverified',
+        `Constitutional ${field} ${reference} does not resolve.`,
+        `/constitution/governance/${field}`,
+      );
+    }
+  }
+
+  const amends = instruments.some((instrument) =>
+    stringArray(instrument.functions).includes('amending'),
+  );
+  if (
+    amends &&
+    (typeof governance?.amendment_procedure !== 'string' ||
+      stringArray(governance?.authority_sources).length === 0)
+  ) {
+    add(
+      findings,
+      'error',
+      'constitutional-amendment-unapproved',
+      'An amending instrument requires an amendment procedure and at least one authority source.',
+      '/constitution/governance/amendment_procedure',
+    );
+  }
+
+  const executable =
+    execution?.mode === 'machine_executable' ||
+    execution?.mode === 'hybrid' ||
+    instruments.some((instrument) => stringArray(instrument.functions).includes('executable'));
+  const implementations = stringArray(execution?.implementations);
+  const conformanceTests = stringArray(execution?.conformance_tests);
+  const enforcementPoints = stringArray(execution?.enforcement_points);
+  const humanReviewGates = stringArray(execution?.human_review_required_for);
+  if (
+    executable &&
+    (implementations.length === 0 ||
+      conformanceTests.length === 0 ||
+      enforcementPoints.length === 0 ||
+      humanReviewGates.length === 0 ||
+      !['deny', 'pause_and_escalate'].includes(String(execution?.failure_policy)))
+  ) {
+    add(
+      findings,
+      'error',
+      'constitutional-execution-incomplete',
+      'Executable constitutional governance requires implementations, conformance tests, enforcement points, human-review gates, and a fail-closed policy.',
+      '/constitution/execution',
+    );
+  }
+  for (const reference of [...implementations, ...conformanceTests]) {
+    if (!resolvesReference(reference, resources)) {
+      add(
+        findings,
+        'error',
+        'constitutional-execution-incomplete',
+        `Constitutional execution resource ${reference} does not resolve.`,
+        '/constitution/execution',
+      );
+    }
+  }
+  for (const reference of enforcementPoints) {
+    if (!resolvesReference(reference, services)) {
+      add(
+        findings,
+        'error',
+        'constitutional-execution-incomplete',
+        `Constitutional enforcement point ${reference} does not resolve.`,
+        '/constitution/execution/enforcement_points',
+      );
+    }
+  }
+
+  const aiMode = typeof constitutionalAI?.mode === 'string' ? constitutionalAI.mode : undefined;
+  if (agentic && (!aiMode || aiMode === 'none')) {
+    add(
+      findings,
+      'error',
+      'constitutional-ai-incomplete',
+      'Agentic domains require an active constitutional-AI mode.',
+      '/constitution/constitutional_ai/mode',
+    );
+  }
+  if (aiMode && aiMode !== 'none') {
+    const principles = stringArray(constitutionalAI?.principles);
+    const appliesToAgents = stringArray(constitutionalAI?.applies_to_agents);
+    const constitutionalAgentIds = new Set([...agents, ...agentControllers]);
+    const auditRecord = constitutionalAI?.audit_record;
+    const critiqueRequired = aiMode === 'critique_and_revise' || aiMode === 'hybrid';
+    const decisionRequired = aiMode === 'policy_evaluate' || aiMode === 'hybrid';
+    if (
+      principles.length === 0 ||
+      typeof auditRecord !== 'string' ||
+      constitutionalAI?.conflict_policy !== 'canonical_authority_prevails' ||
+      (critiqueRequired &&
+        (typeof constitutionalAI.critique_procedure !== 'string' ||
+          typeof constitutionalAI.revision_procedure !== 'string')) ||
+      (decisionRequired && typeof constitutionalAI.decision_procedure !== 'string')
+    ) {
+      add(
+        findings,
+        'error',
+        'constitutional-ai-incomplete',
+        'Active constitutional AI requires principles, mode-specific procedures, canonical-authority conflict policy, and an audit-record definition.',
+        '/constitution/constitutional_ai',
+      );
+    }
+    if (constitutionalAgentIds.size > 0 && appliesToAgents.length === 0) {
+      add(
+        findings,
+        'error',
+        'constitutional-ai-incomplete',
+        'Constitutional AI must identify the declared agents and agent controllers to which it applies.',
+        '/constitution/constitutional_ai/applies_to_agents',
+      );
+    }
+    for (const controller of agentControllers) {
+      if (!appliesToAgents.includes(controller)) {
+        add(
+          findings,
+          'error',
+          'constitutional-ai-incomplete',
+          `Agent controller ${controller} must be bound to the constitutional-AI principles and procedures.`,
+          '/constitution/constitutional_ai/applies_to_agents',
+        );
+      }
+    }
+    for (const agent of appliesToAgents) {
+      if (!constitutionalAgentIds.has(agent)) {
+        add(
+          findings,
+          'error',
+          'constitutional-ai-incomplete',
+          `Constitutional-AI subject ${agent} is not declared as an agent or agent controller.`,
+          '/constitution/constitutional_ai/applies_to_agents',
+        );
+      }
+    }
+    for (const reference of [
+      ...principles,
+      constitutionalAI?.critique_procedure,
+      constitutionalAI?.revision_procedure,
+      constitutionalAI?.decision_procedure,
+      constitutionalAI?.model_profile,
+      auditRecord,
+    ]) {
+      if (typeof reference === 'string' && !resolvesReference(reference, resources)) {
+        add(
+          findings,
+          'error',
+          'constitutional-ai-incomplete',
+          `Constitutional-AI resource ${reference} does not resolve.`,
+          '/constitution/constitutional_ai',
+        );
+      }
+    }
+  }
 }
 
 interface FlowIndexEntry {
@@ -605,8 +1016,20 @@ export function validateSemantics(
   }
   inspectSecrets(document.frontmatter, findings);
   validateSections(document, findings);
-  validateDocuments(document.frontmatter, findings);
-  const { rights, resources } = validateAuthority(document.frontmatter, findings);
+  const documents = validateDocuments(document.frontmatter, findings);
+  const { rights, resources, services, agents, agentControllers } = validateAuthority(
+    document.frontmatter,
+    findings,
+  );
+  validateConstitution(
+    document.frontmatter,
+    documents,
+    resources,
+    services,
+    agents,
+    agentControllers,
+    findings,
+  );
   const flows = validateFlows(document.frontmatter, rights, findings);
   validateClaims(document.frontmatter, rights, resources, flows, findings);
   validatePrivacy(document.frontmatter, findings);

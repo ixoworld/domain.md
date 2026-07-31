@@ -8,7 +8,7 @@
     "created": "2026-07-19T00:00:00Z",
     "issuer": "did:ixo:oracle-capsule-builder",
     "operator": "did:ixo:oracle-capsule-operator",
-    "release_digest": "c31fe2080922fc7b014c2efd40af181e114038902f12f3121a4656e3408b1c48",
+    "release_digest": "b52f2c911397895e38c7037cdda380aef8c041f8f074ed9695e4d661fa5e4334",
     "supersedes": "bafkreihj2mnq4ux7kekn5yxb3mx3etqocuvlpm4fg7wgvnhqjk3w4z2wki"
   },
   "provenance": {
@@ -35,7 +35,7 @@
       "uri": "ipfs://bafkreifqfy2hr2675fssl7lt75pu76ucdjygbcvidhnd6srfiuw2p2vx6i",
       "cid": "bafkreifqfy2hr2675fssl7lt75pu76ucdjygbcvidhnd6srfiuw2p2vx6i",
       "sha256": "b02e3478ebdfe96525fd73ff5f4ffa821a70608aa819da3f4a25452da7eab7f2",
-      "version": "1.0.0-rc.1"
+      "version": "1.0.0-rc.2"
     },
     "subjects": [
       {
@@ -43,7 +43,7 @@
         "uri": "ipfs://bafkreiagna53etruuaixxaiyaya7gpf6d73rwzxrpxriedvwkt7cjg4nrq",
         "cid": "bafkreiagna53etruuaixxaiyaya7gpf6d73rwzxrpxriedvwkt7cjg4nrq",
         "sha256": "06683bb24e34a0117b81180601f33cbe1ff71b66f17de2820eb654fe249b8d8c",
-        "version": "1.0.0-rc.1"
+        "version": "1.0.0-rc.2"
       }
     ]
   },

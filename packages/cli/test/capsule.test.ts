@@ -152,8 +152,8 @@ describe('Oracle Capsule contract and source locks', () => {
       sourceLock,
       lockedFiles: { 'SKILL.md': skill },
       expectedIdentity: {
-        cid: 'bafkreic4or3bq7h3jjr3beorg7pcftuvapmfzbwl7qi4egugqbsmyi2nva',
-        sha256: '5c7476187cfb4a63b091d137de22ce9503d85c86cbfc11c21a868064cc234da8',
+        cid: 'bafkreieafwrmthtb5f5kyy453onjdtncfee4u3n4j6dnxikrh5abemdjxq',
+        sha256: '802da2c99e61e97aac639ddb9a91cda22909ca6dbc4f86dba1513f40123069bc',
         bytes: 3824,
       },
     });
@@ -167,7 +167,7 @@ describe('Oracle Capsule contract and source locks', () => {
     );
     expect(
       oracleCapsuleReleaseDigest(parseCapsuleJson(manifest).document?.value as JsonValue),
-    ).toBe('f4fe600b7cc415489cae8b8cc6ecf278af1a0243676c841694e227757c608d96');
+    ).toBe('b8a1b3c669d9b9a819b8c3f23e1f8a70d76eded5fe59b0aed88b03ff5cae398a');
   });
 
   it('validates the exact x-oracle-capsule domain.md binding', async () => {

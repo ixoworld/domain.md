@@ -4,6 +4,11 @@ import { fileURLToPath } from 'node:url';
 
 import {
   CANONICAL_SECTIONS,
+  CONSTITUTION_AI_MODES,
+  CONSTITUTION_EXECUTION_MODES,
+  CONSTITUTION_INSTRUMENT_FUNCTIONS,
+  CONSTITUTION_STATUSES,
+  CONSTITUTION_TYPES,
   EXTERNAL_CHECKS,
   ORACLE_CAPSULE_CONTRACT,
   ORACLE_CAPSULE_EXTERNAL_CHECKS,
@@ -144,7 +149,15 @@ async function assertInputs(): Promise<{
   ) {
     throw new Error('runtime specification version constants do not match spec/config.ts');
   }
-  for (const value of [...CANONICAL_SECTIONS, ...EXTERNAL_CHECKS]) {
+  for (const value of [
+    ...CANONICAL_SECTIONS,
+    ...EXTERNAL_CHECKS,
+    ...CONSTITUTION_STATUSES,
+    ...CONSTITUTION_TYPES,
+    ...CONSTITUTION_INSTRUMENT_FUNCTIONS,
+    ...CONSTITUTION_EXECUTION_MODES,
+    ...CONSTITUTION_AI_MODES,
+  ]) {
     if (!runtimeConstants.includes(value)) {
       throw new Error(`runtime constants are missing canonical specification value ${value}`);
     }

@@ -1,9 +1,9 @@
 ---
-version: "1.0.0-rc.1"
+version: "1.0.0-rc.2"
 kind: "domain.md"
 conformance:
-  spec_version: "1.0.0-rc.1"
-  schema: "urn:ixo:domain-md:schema:1.0.0-rc.1"
+  spec_version: "1.0.0-rc.2"
+  schema: "urn:ixo:domain-md:schema:1.0.0-rc.2"
   profile: "authoring_draft"
 document_revision: "0.1.0"
 name: "Verified Field Services POD"
@@ -36,9 +36,43 @@ documents:
   anchoring: { method: "none", reference: null, cid: null, verified_at: null }
   not_applicable: []
   entries:
-    - { role: "description", category: "universal", manifest_type: null, name: "Verified Field Services — Description", uri: null, cid: null, media_type: "text/markdown", version: "1.2.0", owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "interpretive", disclosure_pass: 2, required_for_tasks: [ "onboarding", "read_domain_state" ], sensitivity: "public", access_policy: "public", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P180D" }, supersedes: null }
-    - { role: "changelog", category: "universal", manifest_type: null, name: "Verified Field Services — Changelog", uri: null, cid: null, media_type: "text/markdown", version: null, owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "advisory", disclosure_pass: 2, required_for_tasks: [ "submit_or_evaluate_claim", "move_funds_or_settle" ], sensitivity: "internal", access_policy: "role_based", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P30D" }, supersedes: null }
-    - { role: "manifest", category: "manifest", manifest_type: "charter", name: "Marketplace Operators — Charter", uri: null, cid: null, media_type: "text/markdown", version: "2.0.0", owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "defining", disclosure_pass: 3, required_for_tasks: [ "participate_in_governance", "diligence", "dispute" ], sensitivity: "public", access_policy: "public", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P365D" }, supersedes: null }
+    - { id: "description", role: "description", category: "universal", manifest_type: null, name: "Verified Field Services — Description", uri: null, cid: null, media_type: "text/markdown", version: "1.2.0", owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "interpretive", disclosure_pass: 2, required_for_tasks: [ "onboarding", "read_domain_state" ], sensitivity: "public", access_policy: "public", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P180D" }, supersedes: null }
+    - { id: "changelog", role: "changelog", category: "universal", manifest_type: null, name: "Verified Field Services — Changelog", uri: null, cid: null, media_type: "text/markdown", version: null, owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "advisory", disclosure_pass: 2, required_for_tasks: [ "submit_or_evaluate_claim", "move_funds_or_settle" ], sensitivity: "internal", access_policy: "role_based", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P30D" }, supersedes: null }
+    - { id: "domain-charter", role: "manifest", category: "manifest", manifest_type: "charter", name: "Marketplace Operators — Charter", uri: null, cid: null, media_type: "text/markdown", version: "2.0.0", owner: "did:ixo:dao:marketplace-operators", update_authority: [ "did:ixo:dao:marketplace-operators" ], authority: "defining", disclosure_pass: 3, required_for_tasks: [ "participate_in_governance", "diligence", "dispute" ], sensitivity: "public", access_policy: "public", agent_use: { read: true, cite: true, summarize: true }, freshness: { last_verified: null, max_age: "P365D" }, supersedes: null }
+constitution:
+  status: "draft"
+  reason: null
+  subject: "urn:uuid:123e4567-e89b-42d3-a456-426614174000"
+  type: "con:ProjectConstitution"
+  legal_effect: { status: "unknown", jurisdiction: null, authority_evidence: [] }
+  norms: [ "resource:constitutional-principles-v1" ]
+  instruments:
+    - { document_ref: "domain-charter", type: "con:ProjectCharter", functions: [ "constitutive", "governing" ], canonical: true, effective_from: null, effective_until: null }
+  governance:
+    authority_sources: [ "domain-charter" ]
+    decision_procedure: "resource:project-decision-procedure-v1"
+    amendment_procedure: "resource:project-amendment-procedure-v1"
+    interpretation_procedure: "resource:project-interpretation-procedure-v1"
+    dispute_resolution_procedure: "resource:project-dispute-procedure-v1"
+    suspension_procedure: "resource:project-suspension-procedure-v1"
+    dissolution_procedure: "resource:project-dissolution-procedure-v1"
+  execution:
+    mode: "machine_assisted"
+    implementations: [ "resource:project-constitutional-policy-v1" ]
+    conformance_tests: [ "resource:project-constitutional-tests-v1" ]
+    enforcement_points: [ "#matrix" ]
+    failure_policy: "pause_and_escalate"
+    human_review_required_for: [ "payment_release", "rights_change", "constitutional_amendment" ]
+  constitutional_ai:
+    mode: "critique_and_revise"
+    applies_to_agents: [ "did:ixo:agent:evidence-review-oracle" ]
+    principles: [ "resource:constitutional-principles-v1" ]
+    critique_procedure: "resource:constitutional-critique-v1"
+    revision_procedure: "resource:constitutional-revision-v1"
+    decision_procedure: null
+    model_profile: "resource:constitutional-model-profile-v1"
+    conflict_policy: "canonical_authority_prevails"
+    audit_record: "resource:constitutional-audit-schema-v1"
 agent_default_mode:
   mode: "propose_only"
   overrides: { move_value: false, issue_credentials: false, change_rights: false, change_rubrics: false }
@@ -109,6 +143,19 @@ rights:
       conditions: { flow_state: "review_required", claim_type: "service_delivery", max_value: null, not_before: null, expiry: null, role_required: "verifier", credential_required: null, human_review: true }
       revocation: { method: "controller-policy", authority: [ "did:ixo:dao:marketplace-operators" ] }
       audit: { record_as: "udid", signature_required: true }
+agents:
+  entries:
+    - id: "did:ixo:agent:evidence-review-oracle"
+      name: "Evidence Review Oracle"
+      type: "oracle"
+      operator: "did:ixo:dao:marketplace-operators"
+      service: "#matrix"
+      p_functions: [ "evaluate_claim" ]
+      permitted_context: { domains: [ "urn:uuid:123e4567-e89b-42d3-a456-426614174000" ], claims: [ "claim-collection:field-services" ], resources: [ "rubric-service-delivery-v1" ], rooms: [ "#matrix" ] }
+      permitted_outputs: [ "evaluation_claim", "review_recommendation" ]
+      forbidden_outputs: [ "payment_authorization", "rights_grant", "constitutional_amendment" ]
+      logging: { must_cite_evidence: true, must_record_authority: true, must_emit_trace: true, trace_visibility: "controller_only" }
+      escalation: { human_role: "verifier", matrix_room: "#matrix", timeout: "PT24H" }
 claims:
   collections:
     - id: "claim-collection:field-services"
@@ -185,10 +232,10 @@ validation:
   lint_profile: "strict"
   max_document_bytes: 1048576
   max_linked_document_bytes: 2097152
-  required_sections: [ "Overview", "Authority & Control", "Rights & Capabilities", "Privacy & Source-of-Truth Boundaries", "Do's and Don'ts" ]
-  required_frontmatter: [ "version", "kind", "conformance", "document_revision", "domain.id", "source_of_truth", "controllers.summary", "rights.agent_baseline", "privacy.default_policy", "agent_default_mode.mode" ]
+  required_sections: [ "Overview", "Authority & Control", "Constitutional Governance", "Rights & Capabilities", "Privacy & Source-of-Truth Boundaries", "Do's and Don'ts" ]
+  required_frontmatter: [ "version", "kind", "conformance", "document_revision", "domain.id", "source_of_truth", "constitution", "controllers.summary", "rights.agent_baseline", "privacy.default_policy", "agent_default_mode.mode" ]
   stale_after: "P30D"
-  review_required_for_changes_to: [ "controllers", "rights", "accounts", "privacy", "source_of_truth", "claims.collections.evaluation_kit", "claims.collections.rubric", "agents", "agent_default_mode" ]
+  review_required_for_changes_to: [ "constitution", "controllers", "rights", "accounts", "privacy", "source_of_truth", "claims.collections.evaluation_kit", "claims.collections.rubric", "agents", "agent_default_mode" ]
 critical_do_not:
   - "Do not release payment without an approved UDID and account authorization."
   - "Do not expose private evidence in public protocol metadata."
@@ -199,6 +246,8 @@ critical_do_not:
 Coordinates verified field-service delivery between buyers, providers, verifiers, funders, and evidence-review agents. Full description: `documents[role=description]`; founding mandate and principles: `documents[role=manifest]` (charter).
 ## Authority & Control
 The Marketplace Operators DAO controls domain settings, service configuration, account policy, and rights delegation. Mandate and non-negotiable commitments: `documents[role=manifest]` (charter).
+## Constitutional Governance
+The project constitution is embodied by `documents[id=domain-charter]`. Its principles constrain the Evidence Review Oracle, but evaluation never replaces a current right, controller approval, or protocol authorization.
 ## Rights & Capabilities
 Agents are default-denied. The Evidence Review Oracle may create an Evaluation Claim only under its scoped, unexpired right; a verifier with the determination right records the reviewed UDID.
 ## Claims, Evidence & Evaluation

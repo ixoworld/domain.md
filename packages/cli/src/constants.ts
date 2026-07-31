@@ -1,5 +1,5 @@
-export const PACKAGE_VERSION = '0.1.0';
-export const SPEC_VERSION = '1.0.0-rc.1';
+export const PACKAGE_VERSION = '0.2.0';
+export const SPEC_VERSION = '1.0.0-rc.2';
 export const SCHEMA_ID = `urn:ixo:domain-md:schema:${SPEC_VERSION}`;
 export const TEMPLATE_SCHEMA_ID = `urn:ixo:domain-md:template-manifest-schema:${SPEC_VERSION}`;
 export const ORACLE_CAPSULE_CONTRACT = 'ixo.earth/oracle-capsule/v0alpha1';
@@ -63,12 +63,45 @@ export const EXTERNAL_CHECKS = [
     category: 'chain',
     reason: 'Verify the declared chain anchor and confirmation policy.',
   },
+  {
+    code: 'constitutional-instrument-cid',
+    category: 'integrity',
+    reason: 'Verify every constitutional instrument against its declared CID and exact bytes.',
+  },
+  {
+    code: 'constitutional-authority-current',
+    category: 'authorization',
+    reason: 'Resolve current adoption, amendment, interpretation, and enforcement authority.',
+  },
+  {
+    code: 'constitutional-effective-status',
+    category: 'time',
+    reason:
+      'Verify effective, suspended, and superseded status against a trusted clock and canonical state.',
+  },
+  {
+    code: 'constitutional-implementation-integrity',
+    category: 'integrity',
+    reason: 'Verify executable governance code and conformance-test identities.',
+  },
+  {
+    code: 'constitutional-enforcement-deployment',
+    category: 'authorization',
+    reason: 'Verify the declared enforcement point is deployed and authorized for this subject.',
+  },
+  {
+    code: 'constitutional-ai-profile-binding',
+    category: 'authorization',
+    reason:
+      'Verify the active agent and model profile are bound to the declared principles and procedures.',
+  },
 ] as const;
 
 export const CANONICAL_SECTIONS = [
   'Overview',
   'Operating Model',
   'Authority & Control',
+  'Constitutional Governance',
   'Services',
   'Resources',
   'Rights & Capabilities',
@@ -94,6 +127,7 @@ export const KNOWN_TOP_LEVEL_KEYS = new Set([
   'domain',
   'source_of_truth',
   'documents',
+  'constitution',
   'agent_default_mode',
   'controllers',
   'services',
@@ -116,3 +150,52 @@ export const KNOWN_TOP_LEVEL_KEYS = new Set([
   'investment',
   'x-oracle-capsule',
 ]);
+
+export const CONSTITUTION_STATUSES = [
+  'not_applicable',
+  'draft',
+  'adopted',
+  'in_force',
+  'suspended',
+  'superseded',
+] as const;
+
+export const CONSTITUTION_TYPES = [
+  'con:StateConstitution',
+  'con:InternationalOrganizationConstitution',
+  'con:OrganizationalConstitution',
+  'con:CorporateConstitution',
+  'con:TrustConstitution',
+  'con:CooperativeConstitution',
+  'con:PartnershipConstitution',
+  'con:FoundationConstitution',
+  'con:PublicBodyConstitution',
+  'con:ProjectConstitution',
+  'con:ProtocolConstitution',
+  'con:DAOConstitution',
+  'con:AgenticConstitution',
+  'con:SchemeConstitution',
+] as const;
+
+export const CONSTITUTION_INSTRUMENT_FUNCTIONS = [
+  'constitutive',
+  'governing',
+  'amending',
+  'interpretive',
+  'executable',
+] as const;
+
+export const CONSTITUTION_EXECUTION_MODES = [
+  'human_interpreted',
+  'machine_assisted',
+  'machine_executable',
+  'hybrid',
+] as const;
+
+export const CONSTITUTION_AI_MODES = [
+  'none',
+  'context_only',
+  'critique_and_revise',
+  'policy_evaluate',
+  'hybrid',
+] as const;

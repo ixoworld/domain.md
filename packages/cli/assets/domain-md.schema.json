@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:ixo:domain-md:schema:1.0.0-rc.1",
+  "$id": "urn:ixo:domain-md:schema:1.0.0-rc.2",
   "title": "IXO domain.md frontmatter",
-  "description": "Structural and profile-specific validation for domain.md 1.0.0-rc.1. Semantic and runtime conformance checks remain mandatory.",
+  "description": "Structural and profile-specific validation for domain.md 1.0.0-rc.2. Semantic and runtime conformance checks remain mandatory.",
   "type": "object",
   "required": [
     "version",
@@ -15,6 +15,7 @@
     "domain",
     "source_of_truth",
     "documents",
+    "constitution",
     "agent_default_mode",
     "controllers",
     "rights",
@@ -23,7 +24,7 @@
     "critical_do_not"
   ],
   "properties": {
-    "version": { "const": "1.0.0-rc.1" },
+    "version": { "const": "1.0.0-rc.2" },
     "kind": { "const": "domain.md" },
     "conformance": { "$ref": "#/$defs/conformance" },
     "document_revision": { "$ref": "#/$defs/nonEmptyString" },
@@ -47,6 +48,7 @@
     "domain": { "$ref": "#/$defs/domain" },
     "source_of_truth": { "$ref": "#/$defs/sourceOfTruth" },
     "documents": { "$ref": "#/$defs/documents" },
+    "constitution": { "$ref": "#/$defs/constitution" },
     "agent_default_mode": { "$ref": "#/$defs/agentDefaultMode" },
     "controllers": { "$ref": "#/$defs/controllers" },
     "services": { "$ref": "#/$defs/services" },
@@ -230,6 +232,93 @@
         "required": ["domain"]
       },
       "then": { "required": ["investment"] }
+    },
+    {
+      "if": {
+        "properties": {
+          "domain": {
+            "properties": {
+              "type": { "enum": ["dao", "organisation", "project", "protocol", "marketplace", "pod"] }
+            },
+            "required": ["type"]
+          }
+        },
+        "required": ["domain"]
+      },
+      "then": {
+        "properties": {
+          "constitution": {
+            "properties": {
+              "status": { "enum": ["draft", "adopted", "in_force", "suspended", "superseded"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "agent_default_mode": {
+            "properties": { "mode": { "enum": ["bounded_evaluate", "bounded_execute"] } },
+            "required": ["mode"]
+          }
+        },
+        "required": ["agent_default_mode"]
+      },
+      "then": {
+        "properties": {
+          "constitution": {
+            "properties": {
+              "status": { "enum": ["draft", "adopted", "in_force", "suspended", "superseded"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "controllers": {
+            "properties": {
+              "summary": {
+                "properties": { "agent_controllers_allowed": { "const": true } },
+                "required": ["agent_controllers_allowed"]
+              }
+            },
+            "required": ["summary"]
+          }
+        },
+        "required": ["controllers"]
+      },
+      "then": {
+        "properties": {
+          "constitution": {
+            "properties": {
+              "status": { "enum": ["draft", "adopted", "in_force", "suspended", "superseded"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "agents": {
+            "properties": { "entries": { "type": "array", "minItems": 1 } },
+            "required": ["entries"]
+          }
+        },
+        "required": ["agents"]
+      },
+      "then": {
+        "properties": {
+          "constitution": {
+            "properties": {
+              "status": { "enum": ["draft", "adopted", "in_force", "suspended", "superseded"] }
+            }
+          }
+        }
+      }
     }
   ],
   "$defs": {
@@ -288,8 +377,8 @@
       "type": "object",
       "required": ["spec_version", "schema", "profile"],
       "properties": {
-        "spec_version": { "const": "1.0.0-rc.1" },
-        "schema": { "const": "urn:ixo:domain-md:schema:1.0.0-rc.1" },
+        "spec_version": { "const": "1.0.0-rc.2" },
+        "schema": { "const": "urn:ixo:domain-md:schema:1.0.0-rc.2" },
         "profile": { "enum": ["authoring_draft", "persisted_draft", "anchored", "runtime"] }
       },
       "additionalProperties": false
@@ -378,6 +467,143 @@
     "sourceName": {
       "enum": ["protocol_state", "iid_document", "udid", "credential", "claim", "claim_collection_state", "blocksync", "matrix_state", "domain_md", "user_prompt", "agent_memory"]
     },
+    "constitution": {
+      "type": "object",
+      "required": ["status", "reason", "subject", "type"],
+      "properties": {
+        "status": { "enum": ["not_applicable", "draft", "adopted", "in_force", "suspended", "superseded"] },
+        "reason": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "subject": { "$ref": "#/$defs/draftId" },
+        "type": { "$ref": "#/$defs/uri" },
+        "legal_effect": { "$ref": "#/$defs/legalEffect" },
+        "norms": { "$ref": "#/$defs/stringArray" },
+        "instruments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/constitutionalInstrument" }
+        },
+        "governance": { "$ref": "#/$defs/constitutionalGovernance" },
+        "execution": { "$ref": "#/$defs/constitutionalExecution" },
+        "constitutional_ai": { "$ref": "#/$defs/constitutionalAI" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "not_applicable" } },
+            "required": ["status"]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                { "required": ["legal_effect"] },
+                { "required": ["norms"] },
+                { "required": ["instruments"] },
+                { "required": ["governance"] },
+                { "required": ["execution"] },
+                { "required": ["constitutional_ai"] }
+              ]
+            },
+            "properties": {
+              "reason": { "$ref": "#/$defs/nonEmptyString" }
+            }
+          },
+          "else": {
+            "required": ["legal_effect", "norms", "instruments", "governance", "execution", "constitutional_ai"],
+            "properties": {
+              "instruments": { "minItems": 1 },
+              "norms": { "minItems": 1 }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "legalEffect": {
+      "type": "object",
+      "required": ["status", "jurisdiction", "authority_evidence"],
+      "properties": {
+        "status": { "enum": ["none", "claimed", "verified", "unknown"] },
+        "jurisdiction": { "anyOf": [{ "$ref": "#/$defs/uri" }, { "type": "null" }] },
+        "authority_evidence": { "$ref": "#/$defs/stringArray" }
+      },
+      "additionalProperties": false
+    },
+    "constitutionalInstrument": {
+      "type": "object",
+      "required": ["document_ref", "type", "functions", "canonical", "effective_from", "effective_until"],
+      "properties": {
+        "document_ref": { "$ref": "#/$defs/nonEmptyString" },
+        "type": { "$ref": "#/$defs/uri" },
+        "functions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["constitutive", "governing", "amending", "interpretive", "executable"] }
+        },
+        "canonical": { "type": "boolean" },
+        "effective_from": { "anyOf": [{ "$ref": "#/$defs/dateTime" }, { "type": "null" }] },
+        "effective_until": { "anyOf": [{ "$ref": "#/$defs/dateTime" }, { "type": "null" }] }
+      },
+      "additionalProperties": false
+    },
+    "constitutionalGovernance": {
+      "type": "object",
+      "required": ["authority_sources", "decision_procedure", "amendment_procedure", "interpretation_procedure", "dispute_resolution_procedure", "suspension_procedure", "dissolution_procedure"],
+      "properties": {
+        "authority_sources": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "decision_procedure": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "amendment_procedure": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "interpretation_procedure": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "dispute_resolution_procedure": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "suspension_procedure": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "dissolution_procedure": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] }
+      },
+      "additionalProperties": false
+    },
+    "constitutionalExecution": {
+      "type": "object",
+      "required": ["mode", "implementations", "conformance_tests", "enforcement_points", "failure_policy", "human_review_required_for"],
+      "properties": {
+        "mode": { "enum": ["human_interpreted", "machine_assisted", "machine_executable", "hybrid"] },
+        "implementations": { "$ref": "#/$defs/stringArray" },
+        "conformance_tests": { "$ref": "#/$defs/stringArray" },
+        "enforcement_points": { "$ref": "#/$defs/stringArray" },
+        "failure_policy": { "enum": ["deny", "pause_and_escalate"] },
+        "human_review_required_for": { "$ref": "#/$defs/stringArray" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "mode": { "enum": ["machine_executable", "hybrid"] } },
+            "required": ["mode"]
+          },
+          "then": {
+            "properties": {
+              "implementations": { "minItems": 1 },
+              "conformance_tests": { "minItems": 1 },
+              "enforcement_points": { "minItems": 1 },
+              "human_review_required_for": { "minItems": 1 }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "constitutionalAI": {
+      "type": "object",
+      "required": ["mode", "applies_to_agents", "principles", "critique_procedure", "revision_procedure", "decision_procedure", "model_profile", "conflict_policy", "audit_record"],
+      "properties": {
+        "mode": { "enum": ["none", "context_only", "critique_and_revise", "policy_evaluate", "hybrid"] },
+        "applies_to_agents": { "$ref": "#/$defs/stringArray" },
+        "principles": { "$ref": "#/$defs/stringArray" },
+        "critique_procedure": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "revision_procedure": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "decision_procedure": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "model_profile": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
+        "conflict_policy": { "const": "canonical_authority_prevails" },
+        "audit_record": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] }
+      },
+      "additionalProperties": false
+    },
     "documents": {
       "type": "object",
       "required": ["anchoring", "not_applicable", "entries"],
@@ -413,8 +639,9 @@
     },
     "document": {
       "type": "object",
-      "required": ["role", "category", "manifest_type", "name", "uri", "cid", "media_type", "version", "owner", "update_authority", "authority", "disclosure_pass", "required_for_tasks", "sensitivity", "access_policy", "agent_use", "freshness", "supersedes"],
+      "required": ["id", "role", "category", "manifest_type", "name", "uri", "cid", "media_type", "version", "owner", "update_authority", "authority", "disclosure_pass", "required_for_tasks", "sensitivity", "access_policy", "agent_use", "freshness", "supersedes"],
       "properties": {
+        "id": { "$ref": "#/$defs/nonEmptyString" },
         "role": { "type": "string", "pattern": "^(description|changelog|manifest|operations|governance|data-policy|agents|compliance|risk-register|custom|x-[a-z0-9-]+)$" },
         "category": { "enum": ["universal", "manifest", "operational", "advanced", "extension"] },
         "manifest_type": { "type": ["string", "null"], "pattern": "^(charter|dossier|prospectus|terms|specification|datasheet|device-profile|custom)$" },

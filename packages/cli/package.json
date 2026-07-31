@@ -1,6 +1,6 @@
 {
   "name": "@ixo/domain.md",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Authority-aware domain.md specification, validator, authoring library, and CLI",
   "license": "Apache-2.0",
   "type": "module",
