@@ -1,5 +1,5 @@
-export const PACKAGE_VERSION = '0.2.0';
-export const SPEC_VERSION = '1.0.0-rc.2';
+export const PACKAGE_VERSION = '0.3.0';
+export const SPEC_VERSION = '1.0.0-rc.3';
 export const SCHEMA_ID = `urn:ixo:domain-md:schema:${SPEC_VERSION}`;
 export const TEMPLATE_SCHEMA_ID = `urn:ixo:domain-md:template-manifest-schema:${SPEC_VERSION}`;
 export const ORACLE_CAPSULE_CONTRACT = 'ixo.earth/oracle-capsule/v0alpha1';
@@ -161,6 +161,17 @@ export const CONSTITUTION_STATUSES = [
 ] as const;
 
 export const CONSTITUTION_TYPES = [
+  'con:OperationalConstitution',
+  'con:PersonalConstitution',
+  'con:AssetConstitution',
+  'con:FinancialSubjectConstitution',
+  'con:WorkConstitution',
+  'con:ServiceConstitution',
+  'con:OracleConstitution',
+  'con:InformationSubjectConstitution',
+  'con:PlaceConstitution',
+  'con:BiologicalSubjectConstitution',
+  'con:NetworkConstitution',
   'con:StateConstitution',
   'con:InternationalOrganizationConstitution',
   'con:OrganizationalConstitution',
@@ -175,6 +186,41 @@ export const CONSTITUTION_TYPES = [
   'con:DAOConstitution',
   'con:AgenticConstitution',
   'con:SchemeConstitution',
+] as const;
+
+export const CONSTITUTIONAL_SUBJECT_TYPES = [
+  'con:Person',
+  'con:Organization',
+  'con:Asset',
+  'con:Commodity',
+  'con:FinancialInstrument',
+  'con:PropertyRight',
+  'con:Agreement',
+  'con:Deed',
+  'con:Project',
+  'con:Work',
+  'con:Protocol',
+  'con:Service',
+  'con:Oracle',
+  'con:Claim',
+  'con:Credential',
+  'con:Evidence',
+  'con:Decision',
+  'con:Outcome',
+  'con:Place',
+  'con:BiologicalEntity',
+  'con:Network',
+  'con:AgenticTwin',
+] as const;
+
+export const CONSTITUTIONAL_ARCHETYPES = [
+  'con:Stewarded',
+  'con:Owned',
+  'con:Managed',
+  'con:Governed',
+  'con:Regulated',
+  'con:Verified',
+  'con:Settled',
 ] as const;
 
 export const CONSTITUTION_INSTRUMENT_FUNCTIONS = [

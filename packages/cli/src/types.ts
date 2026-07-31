@@ -111,11 +111,39 @@ export interface ConstitutionalAI {
   audit_record: string | null;
 }
 
+export interface ConstitutionalSubjectProfile {
+  subject_types: string[];
+  archetypes: string[];
+  identity: string[];
+  purposes: string[];
+  interests: string[];
+  values: string[];
+  rights: string[];
+  obligations: string[];
+  capabilities: string[];
+  claims: string[];
+  wallets: string[];
+  authorities: string[];
+  memory: string[];
+  evidence_policies: string[];
+  evaluation_policies: string[];
+  decision_policies: string[];
+  settlement_policies: string[];
+  governance: string[];
+  custodians: string[];
+  stewards: string[];
+  owners: string[];
+  beneficiaries: string[];
+  oracles: string[];
+  agentic_twins: string[];
+}
+
 export interface ConstitutionDeclaration {
   status: ConstitutionStatus;
   reason: string | null;
   subject: string;
   type: string;
+  subject_profile: ConstitutionalSubjectProfile;
   legal_effect?: LegalEffect;
   norms?: string[];
   instruments?: ConstitutionalInstrument[];

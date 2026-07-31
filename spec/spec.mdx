@@ -2,7 +2,7 @@
 
 |  |  |
 | :---- | :---- |
-| **Specification version** | `1.0.0-rc.2` |
+| **Specification version** | `1.0.0-rc.3` |
 | **Status** | `release-candidate` — suitable for controlled production pilots; promote to `1.0.0` only after resolver, anchoring, and migration interoperability tests pass |
 | **Consumers** | AI agents, Agentic Oracles, Qi workflows, SDK automation, governance assistants, domain operators |
 | **Purpose** | The index operating document an AI agent loads before acting within an IXO entity domain |
@@ -149,11 +149,11 @@ An unknown, unprefixed top-level key produces a **warning**.
 The block below is readable notation, not a substitute for `domain-md.schema.json`. A production validator **MUST** validate against the matching JSON Schema before applying the semantic lint rules in §13.
 
 ```
-version: "1.0.0-rc.2"
+version: "1.0.0-rc.3"
 kind: "domain.md"
 conformance:
-  spec_version: "1.0.0-rc.2"
-  schema: "urn:ixo:domain-md:schema:1.0.0-rc.2"
+  spec_version: "1.0.0-rc.3"
+  schema: "urn:ixo:domain-md:schema:1.0.0-rc.3"
   profile: "authoring_draft|persisted_draft|anchored|runtime"
 document_revision: string                 # monotonic domain-controlled revision, e.g. semver or date-build id
 name: string
@@ -165,7 +165,7 @@ maintainers:
 domain:
   id: "did:ixo:entity:...|urn:uuid:..."  # urn:uuid only for authoring_draft or persisted_draft
   iid: "did:ixo:entity:..." | null        # required for anchored and runtime
-  type: "dao|organisation|project|asset|deed|protocol|investment|oracle|service|dataset|device|place|portfolio|marketplace|pod|claim_collection|custom"
+  type: "dao|organisation|person|project|asset|commodity|financial_instrument|property_right|agreement|deed|work|protocol|investment|oracle|service|claim|credential|evidence|decision|outcome|event|process|relationship|information_object|normative_object|capability|biological_entity|network|dataset|device|place|portfolio|marketplace|pod|claim_collection|custom"
   class: "did:ixo:entity:..." | null
   class_binding:                            # required when class is non-null
     resource: string                       # immutable protocol class or template-manifest locator
@@ -241,6 +241,31 @@ constitution:
   reason: string | null                 # required when status is not_applicable
   subject: "did:ixo:...|urn:uuid:..."   # MUST exactly equal domain.id
   type: string                          # constitutional type IRI from the IXO constitutional vocabulary
+  subject_profile:                      # required for every status, including not_applicable
+    subject_types: [ string ]           # ≥1 class IRI from the legal-form-independent subject taxonomy
+    archetypes: [ string ]              # any of Stewarded, Owned, Managed, Governed, Regulated, Verified, Settled
+    identity: [ string ]                # MUST include constitution.subject
+    purposes: [ string ]
+    interests: [ string ]
+    values: [ string ]
+    rights: [ string ]
+    obligations: [ string ]
+    capabilities: [ string ]
+    claims: [ string ]
+    wallets: [ string ]
+    authorities: [ string ]
+    memory: [ string ]
+    evidence_policies: [ string ]
+    evaluation_policies: [ string ]
+    decision_policies: [ string ]
+    settlement_policies: [ string ]
+    governance: [ string ]
+    custodians: [ string ]
+    stewards: [ string ]
+    owners: [ string ]
+    beneficiaries: [ string ]
+    oracles: [ string ]
+    agentic_twins: [ string ]
   legal_effect:                         # required unless status is not_applicable
     status: "none|claimed|verified|unknown"
     jurisdiction: string | null
@@ -541,17 +566,49 @@ critical_do_not:
 
 ### 4.3.1 Constitutional model and catalogue
 
-The canonical vocabulary is `https://w3id.org/ixo/vocab/v1/constitution#` (`con:`). It makes four
+The canonical vocabulary is `https://w3id.org/ixo/vocab/v1/constitution#` (`con:`). It makes five
 non-interchangeable commitments:
 
-1. A `con:ConstitutionalSubject` is the entity, institutional arrangement, collective, protocol, or agentic
-   system being governed.
+1. A `con:ConstitutionalSubject` is any thing explicitly modeled as possessing identity and a governing
+   normative system. It is orthogonal to legal form and may be an entity, event, process, relationship,
+   information object, normative object, or capability.
 2. A `con:Constitution` is the authoritative and relatively fundamental normative system that constitutes,
    governs, constrains, and enables that subject.
 3. A `con:ConstitutionalInstrument` is a document or artifact that creates, expresses, amends, interprets,
    or evidences part of that constitution.
 4. A `con:ConstitutionalMechanism` is a human, institutional, technical, or hybrid procedure that evaluates,
    applies, enforces, records, or escalates constitutional norms.
+5. A `con:ConstitutionalSubjectProfile` classifies the subject and references its constitutional facets
+   without duplicating or overriding their canonical sources.
+
+`domain.type` is a coarse serialization and manifest-selection category. `constitution.subject_profile`
+is the semantic classification layer: `subject_types` contains one or more subject-class IRIs and
+`archetypes` contains zero or more reusable governance-pattern IRIs. Multiple subject types are expected.
+A forest may be both `con:NaturalAsset` and `con:BiologicalEntity`; a trust deed may be both `con:Deed` and
+a constitutional instrument; an oracle may also be a service. Typing something as a subject is an explicit
+modeling assertion, not a claim that every real-world instance of the ordinary-language category has a
+constitution.
+
+The canonical subject taxonomy spans persons; organisations; physical, digital, financial, natural,
+infrastructure, knowledge, and intangible assets; commodities; financial instruments; property rights;
+agreements; deeds; projects and work; protocols; services; oracles; claims; credentials; evidence;
+decisions; outcomes; places; biological subjects and disease outbreaks; networks; and agentic twins. It
+therefore supports subjects such as a GPU, solar farm, forest, gold lot, investment, licence, employment
+deed, mission, clinical guideline, scientific hypothesis, authenticated claim, professional credential,
+watershed, pathogen outbreak, or supply chain without pretending that they are organisations.
+
+Every subject profile exposes the same reference vocabulary: identity, purposes, interests, values, rights,
+obligations, capabilities, claims, wallets, authorities, memory, evidence policies, evaluation policies,
+decision policies, settlement policies, governance, custodians, stewards, owners, beneficiaries, oracles,
+and agentic twins.
+All keys are present for deterministic processing; arrays may be empty when a facet is genuinely absent.
+Bare identifiers MUST resolve to the corresponding local documents, resources, rights, services,
+controllers, agents, or linked entities. URI, DID, CID, and compact-IRI references are external and require
+runtime resolution when the task depends on them.
+
+Seven non-exclusive archetypes provide reusable governance mixins: `con:Stewarded`, `con:Owned`,
+`con:Managed`, `con:Governed`, `con:Regulated`, `con:Verified`, and `con:Settled`. They do not replace the
+subject type or constitution type.
 
 Constitutions contain `con:ConstitutiveNorm` rules that establish institutional facts, `con:PrescriptiveNorm`
 rules that create permissions, prohibitions, duties, and entitlements, and `con:ProceduralNorm` rules for
@@ -567,6 +624,16 @@ legal advice.
 
 | Subject | Constitution type | Common instruments |
 | :---- | :---- | :---- |
+| person | `con:PersonalConstitution` | `con:OperationalConstitutionDocument` |
+| asset / commodity | `con:AssetConstitution` | `con:AssetCharter`, `con:OperationalConstitutionDocument` |
+| financial instrument / property right / agreement / deed | `con:FinancialSubjectConstitution` | `con:TermsInstrument`, `con:GovernancePolicy` |
+| programme / mission / work | `con:WorkConstitution` | `con:ProjectCharter`, `con:OperationalConstitutionDocument` |
+| service | `con:ServiceConstitution` | `con:ServiceCharter`, `con:ServiceAgreementInstrument` |
+| oracle | `con:OracleConstitution` | `con:OracleCharter`, `con:EvaluationPolicy` |
+| claim / credential / evidence / decision | `con:InformationSubjectConstitution` | `con:EvaluationPolicy`, `con:LifecyclePolicy` |
+| place | `con:PlaceConstitution` | `con:StewardshipCharter`, `con:GovernancePolicy` |
+| biological entity / disease outbreak | `con:BiologicalSubjectConstitution` | `con:StewardshipCharter`, `con:EvidencePolicy` |
+| network | `con:NetworkConstitution` | `con:NetworkCharter`, `con:ProtocolSpecification` |
 | state | `con:StateConstitution` | `con:ConstitutionDocument`, `con:BasicLaw` |
 | international organisation | `con:InternationalOrganizationConstitution` | `con:ConstituentTreaty`, `con:OrganizationCharter` |
 | company | `con:CorporateConstitution` | `con:ArticlesOfAssociation`, `con:CorporateCharter`, `con:Bylaws` |
@@ -590,9 +657,25 @@ or authority. Representative legal anchors include the
 [UK Companies Act 2006 section 17](https://www.legislation.gov.uk/ukpga/2006/46/section/17),
 [HCCH Trusts Convention](https://www.hcch.net/en/instruments/conventions/full-text/?cid=59),
 [European Cooperative Society Regulation](https://eur-lex.europa.eu/legal-content/EN/AUTO/?uri=CELEX:02003R1435-20030821),
-and [UN Charter](https://www.un.org/en/about-us/un-charter).
+and [UN Charter](https://www.un.org/en/about-us/un-charter). `commonInstrument` and subject-class mappings
+are annotation metadata for authoring and discovery, not inference-producing instance relationships.
 
-**Tiered requirement.** Every document declares constitutional status. `dao`, `organisation`, `project`,
+**Recursive twins and the constitutional agency cycle.** A constitutional subject may have no agentic twin,
+one twin, or multiple scoped twins. Each `con:AgenticTwin` is itself a constitutional subject with its own
+identity, constitution, claims, wallet, memory, world model, decision engine, capability tokens, and
+constitutional governor. The parent subject and its twin remain distinct. A twin's internal constitutional
+evaluation does not grant the live capability to act for the parent. A declared claim does not establish
+truth, and a wallet reference does not prove control or authorize an action.
+
+The IXO cycle is:
+
+`Identity → Constitution → Claims → Evidence → Evaluation → Decision → Capability → Action → Settlement → Memory`.
+
+This sequence is a reasoning and authoring aid. Each transition still resolves the applicable canonical
+state and authority; no stage self-authorizes the next.
+
+**Tiered requirement.** Every document declares constitutional status and a complete `subject_profile`,
+including passive `not_applicable` domains. `dao`, `organisation`, `project`,
 `protocol`, `marketplace`, and `pod` domains, domains with declared agents, domains permitting agent
 controllers, and domains using `bounded_evaluate` or `bounded_execute` MUST provide the complete package.
 Only a passive domain with no agent/controller agency or executable governance and a `read_only` or
@@ -826,9 +909,9 @@ Separate **public protocol metadata** from **private service-layer data**:
 The hot path an agent runs for every task:
 
 1. **Load** — parse safely; validate the declared conformance profile against the matching schema; verify `kind: domain.md`; verify `domain.id` and, for anchored/runtime profiles, `source_of_truth.iid_document`. Treat missing authority as denial.
-2. **Resolve constitution** — require the tier-appropriate constitutional declaration; resolve exact instrument bytes, effective/superseded status, norms, procedures, execution artifacts, and constitutional-AI profile. A missing or conflicting constitutional dependency fails closed.
+2. **Resolve constitution** — require the tier-appropriate constitutional declaration; resolve the legal-form-independent subject types, archetypes, referenced subject facets, exact instrument bytes, effective/superseded status, norms, procedures, execution artifacts, and constitutional-AI profile. A missing or conflicting constitutional dependency fails closed.
 3. **Resolve live authority** — resolve the current IID/DID and protocol state before stateful work; verify adoption, controllers, rights, capabilities, revocation, approvals, and enforcement-point authority. Use Blocksync only as a consistent read projection and Matrix only for permitted context.
-4. **Constitutional evaluate** — evaluate the proposed action against applicable constitutive, prescriptive, and procedural norms. Constitutional AI may supply context, critique/revision, or policy evaluation but may not authorize the action.
+4. **Constitutional evaluate** — evaluate the proposed action against applicable constitutive, prescriptive, and procedural norms. Bind every declared agentic twin and agent controller to the identified principles and procedures. Constitutional AI may supply context, critique/revision, or policy evaluation but may not authorize the action.
 5. **Authorize** — run §8 authorization resolution and check Flow state before any claim, evaluation, payment, credential, or transition. Both constitutional conformance and live authorization must pass.
 6. **Act** — cite evidence for every evidence-based output; emit Evaluation Claims where configured; refuse anything exceeding delegated authority.
 7. **Record** — write determinations as UDIDs at determination points; log authority, principle IDs, inputs, evidence references, tool results, policy/rubric versions, reason codes, outcomes, and receipts. Never require, store, or expose private chain-of-thought; an audit trace contains decision-relevant facts and reproducible rationale only.
@@ -877,6 +960,7 @@ The hot path an agent runs for every task:
 | `missing-description-doc` | error | No `documents` entry with role `description` |
 | `missing-changelog-doc` | error | No `documents` entry with role `changelog` |
 | `constitution-required` | error | A domain lacks the tier-appropriate constitutional package |
+| `constitutional-subject-profile-unresolved` | error | Subject type, identity, archetype, or declared subject-facet reference is missing or unresolved |
 | `constitution-not-applicable-invalid` | error | A governed or agentic domain declares its constitution not applicable |
 | `constitutional-instrument-unresolved` | error | An instrument does not resolve to a unique `documents.entries[].id` |
 | `constitutional-authority-unverified` | error | Legal effect or constitutional procedure lacks resolvable authority evidence |
@@ -923,11 +1007,11 @@ Document roles map onto the same tiers: a **manifest**, `governance`, `data-poli
 
 ```
 ---
-version: "1.0.0-rc.2"
+version: "1.0.0-rc.3"
 kind: "domain.md"
 conformance:
-  spec_version: "1.0.0-rc.2"
-  schema: "urn:ixo:domain-md:schema:1.0.0-rc.2"
+  spec_version: "1.0.0-rc.3"
+  schema: "urn:ixo:domain-md:schema:1.0.0-rc.3"
   profile: "authoring_draft"
 document_revision: "0.1.0"
 name: "Verified Field Services POD"
@@ -968,6 +1052,31 @@ constitution:
   reason: null
   subject: "urn:uuid:123e4567-e89b-42d3-a456-426614174000"
   type: "con:ProjectConstitution"
+  subject_profile:
+    subject_types: [ "con:Project", "con:Work" ]
+    archetypes: [ "con:Managed", "con:Governed", "con:Verified", "con:Settled" ]
+    identity: [ "urn:uuid:123e4567-e89b-42d3-a456-426614174000" ]
+    purposes: [ "resource:project-purpose-v1" ]
+    interests: [ "resource:project-participant-interests-v1" ]
+    values: [ "resource:constitutional-principles-v1" ]
+    rights: [ "right:submit-service-claim", "right:evaluate-service-claim" ]
+    obligations: [ "resource:project-obligations-v1" ]
+    capabilities: [ "right:evaluate-service-claim" ]
+    claims: [ "claim-collection:field-services" ]
+    wallets: [ "did:ixo:wallet:field-services" ]
+    authorities: [ "did:ixo:dao:marketplace-operators" ]
+    memory: [ "resource:project-memory-policy-v1" ]
+    evidence_policies: [ "resource:project-evidence-policy-v1" ]
+    evaluation_policies: [ "resource:project-evaluation-policy-v1" ]
+    decision_policies: [ "resource:project-decision-procedure-v1" ]
+    settlement_policies: [ "resource:project-settlement-policy-v1" ]
+    governance: [ "domain-charter" ]
+    custodians: []
+    stewards: [ "did:ixo:dao:marketplace-operators" ]
+    owners: []
+    beneficiaries: [ "did:ixo:entity:field-service-participants" ]
+    oracles: [ "did:ixo:agent:evidence-review-oracle" ]
+    agentic_twins: [ "did:ixo:agent:evidence-review-oracle" ]
   legal_effect: { status: "unknown", jurisdiction: null, authority_evidence: [] }
   norms: [ "resource:constitutional-principles-v1" ]
   instruments:
@@ -1203,7 +1312,7 @@ External retrieval **MUST** use an allowlist of schemes and destinations, block 
 
 Conformance fixtures **MUST** include valid authoring, persisted, anchored, and runtime examples plus failures for unsafe YAML, duplicate IDs, invalid class binding, missing CIDs, CID mismatch, stale required documents, broken references, deny/allow conflicts, expired/revoked capabilities, denomination mismatch, incomplete claim contracts, invalid/unreachable Flow transitions, private-data leakage, and canonical-state conflict.
 
-Promotion from `1.0.0-rc.2` to `1.0.0` requires passing the same fixture corpus in at least two independent validators and completing interoperability tests against the production IID resolver, linked-resource anchoring path, content-addressed storage, capability verifier, and one end-to-end claim → UDID → reviewed settlement loop.
+Promotion from `1.0.0-rc.3` to `1.0.0` requires passing the same fixture corpus in at least two independent validators and completing interoperability tests against the production IID resolver, linked-resource anchoring path, content-addressed storage, capability verifier, and one end-to-end claim → UDID → reviewed settlement loop.
 
 ---
 
@@ -1262,5 +1371,6 @@ Builds on IXO primitives: DID-anchored IID entity domains (controllers, services
 
 The constitutional terms and catalogue use the merged IXO vocabulary at
 `https://w3id.org/ixo/vocab/v1/constitution#`, source commit
-`14df6d10d467712265216bfa6270dc6f59e0863b`. Terms are specialized with RDFS/OWL and organized with SKOS;
+`c9557bf0b8b7bc842501ba132e90e3edee0739ba`, including the legal-form-independent subject catalogue at
+`https://w3id.org/ixo/vocab/v1/constitution/subjects`. Terms are specialized with RDFS/OWL and organized with SKOS;
 provenance reuses DCTERMS and PROV-O, while permissions, prohibitions, and duties reuse ODRL.

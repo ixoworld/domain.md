@@ -47,7 +47,7 @@ export interface TemplateBundleRecord {
 }
 
 export interface TemplateManifest {
-  version: '1.0.0-rc.2';
+  version: '1.0.0-rc.3';
   kind: 'domain.md/template-manifest';
   protocol: string;
   protocol_version: string;

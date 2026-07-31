@@ -215,6 +215,77 @@ describe('lint', () => {
     ).toBe(true);
   });
 
+  it('requires a complete, resolvable constitutional-subject profile', async () => {
+    const parsed = parseDomain(await example());
+    expect(parsed.document).toBeDefined();
+    const missing = structuredClone(parsed.document!);
+    const constitution = missing.frontmatter.constitution as Record<string, unknown>;
+    delete constitution.subject_profile;
+    expect(
+      validateSemantics(missing).some(
+        (finding) => finding.code === 'constitutional-subject-profile-unresolved',
+      ),
+    ).toBe(true);
+
+    const identityMismatch = lint(
+      (await example()).replace(
+        'identity: [ "urn:uuid:123e4567-e89b-42d3-a456-426614174000" ]',
+        'identity: [ "urn:uuid:523e4567-e89b-42d3-a456-426614174000" ]',
+      ),
+    );
+    const untyped = lint(
+      (await example()).replace(
+        'subject_types: [ "con:Project", "con:Work" ]',
+        'subject_types: [ "Project" ]',
+      ),
+    );
+    const unresolved = lint(
+      (await example()).replace(
+        'governance: [ "domain-charter" ]',
+        'governance: [ "missing-governance" ]',
+      ),
+    );
+    const unresolvedClaim = lint(
+      (await example()).replace(
+        'claims: [ "claim-collection:field-services" ]',
+        'claims: [ "missing-claim" ]',
+      ),
+    );
+    const unresolvedWallet = lint(
+      (await example()).replace(
+        'wallets: [ "did:ixo:wallet:field-services" ]',
+        'wallets: [ "missing-wallet" ]',
+      ),
+    );
+    for (const report of [
+      identityMismatch,
+      untyped,
+      unresolved,
+      unresolvedClaim,
+      unresolvedWallet,
+    ]) {
+      expect(
+        report.findings.some(
+          (finding) => finding.code === 'constitutional-subject-profile-unresolved',
+        ),
+      ).toBe(true);
+    }
+  });
+
+  it('binds recursive agentic twins to the constitutional-AI evaluation boundary', async () => {
+    const changed = (await example()).replace(
+      'applies_to_agents: [ "did:ixo:agent:evidence-review-oracle" ]',
+      'applies_to_agents: []',
+    );
+    expect(
+      lint(changed).findings.some(
+        (finding) =>
+          finding.code === 'constitutional-ai-incomplete' &&
+          finding.message.includes('Agentic twin'),
+      ),
+    ).toBe(true);
+  });
+
   it('rejects invalid effective periods and unresolved constitutional authority', async () => {
     const base = await example();
     const effectivePeriod = lint(
@@ -377,9 +448,9 @@ describe('lint', () => {
   it('rejects a constitutional package attached to a passive exemption', async () => {
     const passive = await example('passive-dataset');
     const changed = passive.replace(
-      '  type: "con:Constitution"\nagent_default_mode:',
+      '  type: "con:OperationalConstitution"\n  subject_profile:',
       [
-        '  type: "con:Constitution"',
+        '  type: "con:OperationalConstitution"',
         '  execution:',
         '    mode: "machine_executable"',
         '    implementations: [ "resource:runtime" ]',
@@ -387,7 +458,7 @@ describe('lint', () => {
         '    enforcement_points: [ "service:gate" ]',
         '    failure_policy: "deny"',
         '    human_review_required_for: []',
-        'agent_default_mode:',
+        '  subject_profile:',
       ].join('\n'),
     );
     expect(
@@ -398,6 +469,9 @@ describe('lint', () => {
   });
 
   it.each([
+    ['natural asset', 'con:AssetConstitution', 'con:StewardshipCharter'],
+    ['oracle service', 'con:OracleConstitution', 'con:OracleCharter'],
+    ['information subject', 'con:InformationSubjectConstitution', 'con:EvaluationPolicy'],
     ['company', 'con:CorporateConstitution', 'con:ArticlesOfAssociation'],
     ['trust', 'con:TrustConstitution', 'con:TrustDeed'],
     ['cooperative', 'con:CooperativeConstitution', 'con:CooperativeStatutes'],
@@ -407,6 +481,15 @@ describe('lint', () => {
     const changed = (await example('service-domain'))
       .replace('type: "con:AgenticConstitution"', `type: "${type}"`)
       .replace('type: "con:AgenticConstitutionDocument"', `type: "${instrument}"`);
+    const report = lint(changed);
+    expect(report.ok, JSON.stringify(report.findings)).toBe(true);
+  });
+
+  it('accepts plural subject classifications independently of legal form', async () => {
+    const changed = (await example('service-domain')).replace(
+      'subject_types: [ "con:Service", "con:OracleService" ]',
+      'subject_types: [ "con:NaturalAsset", "con:BiologicalEntity", "con:Place" ]',
+    );
     const report = lint(changed);
     expect(report.ok, JSON.stringify(report.findings)).toBe(true);
   });

@@ -1,4 +1,4 @@
-version: "1.0.0-rc.2"
+version: "1.0.0-rc.3"
 kind: "domain.md/template-manifest"
 protocol: "did:ixo:entity:protocol:verified-services"
 protocol_version: "1.0.0"
@@ -11,5 +11,5 @@ bundles:
         media_type: "text/markdown"
         max_bytes: 1048576
         cid: null
-        sha256: "f9ff41ef6414947c76b55b759e7d4b93099ee6a4284c80f119a8cedcbe896f37"
+        sha256: "3b2d1d34559b1b001ed87aa8a14babb290cda0eab2b38c57340a8d828e1318a5"
         required: true

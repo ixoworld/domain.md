@@ -1,9 +1,9 @@
 ---
-version: "1.0.0-rc.2"
+version: "1.0.0-rc.3"
 kind: "domain.md"
 conformance:
-  spec_version: "1.0.0-rc.2"
-  schema: "urn:ixo:domain-md:schema:1.0.0-rc.2"
+  spec_version: "1.0.0-rc.3"
+  schema: "urn:ixo:domain-md:schema:1.0.0-rc.3"
   profile: "authoring_draft"
 document_revision: "0.1.0"
 name: "Verified Field Service Domain"
@@ -43,11 +43,36 @@ constitution:
   status: "draft"
   reason: null
   subject: "urn:uuid:223e4567-e89b-42d3-a456-426614174000"
-  type: "con:AgenticConstitution"
+  type: "con:ServiceConstitution"
+  subject_profile:
+    subject_types: [ "con:Service", "con:OracleService" ]
+    archetypes: [ "con:Managed", "con:Verified", "con:Settled" ]
+    identity: [ "urn:uuid:223e4567-e89b-42d3-a456-426614174000" ]
+    purposes: [ "resource:service-purpose-v1" ]
+    interests: [ "resource:service-participant-interests-v1" ]
+    values: [ "resource:constitutional-principles-v1" ]
+    rights: [ "right:submit-service-claim", "right:evaluate-service-claim" ]
+    obligations: [ "resource:service-obligations-v1" ]
+    capabilities: [ "right:evaluate-service-claim" ]
+    claims: [ "claim-collection:field-services" ]
+    wallets: [ "did:ixo:wallet:verified-field-service" ]
+    authorities: [ "did:ixo:dao:marketplace-operators" ]
+    memory: [ "resource:service-memory-policy-v1" ]
+    evidence_policies: [ "resource:service-evidence-policy-v1" ]
+    evaluation_policies: [ "resource:service-evaluation-policy-v1" ]
+    decision_policies: [ "resource:service-decision-procedure-v1" ]
+    settlement_policies: [ "resource:service-settlement-policy-v1" ]
+    governance: [ "domain-charter" ]
+    custodians: []
+    stewards: [ "did:ixo:dao:marketplace-operators" ]
+    owners: []
+    beneficiaries: [ "did:ixo:entity:field-service-participants" ]
+    oracles: [ "did:ixo:agent:evidence-review-oracle" ]
+    agentic_twins: [ "did:ixo:agent:evidence-review-oracle" ]
   legal_effect: { status: "unknown", jurisdiction: null, authority_evidence: [] }
   norms: [ "resource:constitutional-principles-v1" ]
   instruments:
-    - { document_ref: "domain-charter", type: "con:AgenticConstitutionDocument", functions: [ "constitutive", "governing" ], canonical: true, effective_from: null, effective_until: null }
+    - { document_ref: "domain-charter", type: "con:ServiceCharter", functions: [ "constitutive", "governing" ], canonical: true, effective_from: null, effective_until: null }
   governance:
     authority_sources: [ "domain-charter" ]
     decision_procedure: "resource:service-decision-procedure-v1"

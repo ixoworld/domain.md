@@ -108,6 +108,12 @@ export const RULES: RuleDefinition[] = [
       'Require governed and agentic domains to declare a complete constitutional package.',
   },
   {
+    code: 'constitutional-subject-profile-unresolved',
+    severity: 'error',
+    description:
+      'Require every domain to classify its subject and resolve each declared constitutional facet.',
+  },
+  {
     code: 'constitution-not-applicable-invalid',
     severity: 'error',
     description:

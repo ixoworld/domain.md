@@ -248,6 +248,9 @@ function validateAuthority(
   services: Set<string>;
   agents: Set<string>;
   agentControllers: Set<string>;
+  linkedEntities: Set<string>;
+  claims: Set<string>;
+  wallets: Set<string>;
 } {
   const controllerEntries = records(frontmatter.controllers, 'entries');
   const controllerIds = uniqueIds(controllerEntries, 'controller', findings);
@@ -271,7 +274,21 @@ function validateAuthority(
   const rights = uniqueIds(rightEntries, 'right', findings);
   const resources = uniqueIds(records(frontmatter.resources, 'entries'), 'resource', findings);
   const services = uniqueIds(records(frontmatter.services, 'entries'), 'service', findings);
-  uniqueIds(records(frontmatter.linked_entities, 'entries'), 'linked entity', findings);
+  const linkedEntities = uniqueIds(
+    records(frontmatter.linked_entities, 'entries'),
+    'linked entity',
+    findings,
+  );
+  const claims = new Set(
+    records(frontmatter.claims, 'collections')
+      .map((entry) => entry.id)
+      .filter((id): id is string => typeof id === 'string'),
+  );
+  const wallets = new Set(
+    records(frontmatter.accounts, 'entries').flatMap((entry) =>
+      [entry.name, entry.address].filter((value): value is string => typeof value === 'string'),
+    ),
+  );
   uniqueIds(records(frontmatter.pods, 'entries'), 'POD', findings);
   const agents = uniqueIds(records(frontmatter.agents, 'entries'), 'agent', findings);
   const agentControllers = new Set(
@@ -311,6 +328,9 @@ function validateAuthority(
     services,
     agents,
     agentControllers,
+    linkedEntities,
+    claims,
+    wallets,
   };
 }
 
@@ -327,10 +347,15 @@ function resolvesReference(value: string, ...sets: Set<string>[]): boolean {
 function validateConstitution(
   frontmatter: DomainRecord,
   documents: Set<string>,
+  controllers: Set<string>,
+  rights: Set<string>,
   resources: Set<string>,
   services: Set<string>,
   agents: Set<string>,
   agentControllers: Set<string>,
+  linkedEntities: Set<string>,
+  claims: Set<string>,
+  wallets: Set<string>,
   findings: Finding[],
 ): void {
   const constitution = isRecord(frontmatter.constitution) ? frontmatter.constitution : undefined;
@@ -339,7 +364,7 @@ function validateConstitution(
       findings,
       'error',
       'constitution-required',
-      'Every domain.md 1.0.0-rc.2 document must declare constitutional status.',
+      'Every domain.md 1.0.0-rc.3 document must declare constitutional status.',
       '/constitution',
     );
     return;
@@ -355,6 +380,81 @@ function validateConstitution(
       'constitution.subject must exactly equal domain.id.',
       '/constitution/subject',
     );
+  }
+
+  const subjectProfile = isRecord(constitution.subject_profile)
+    ? constitution.subject_profile
+    : undefined;
+  const subjectTypes = stringArray(subjectProfile?.subject_types);
+  const archetypes = stringArray(subjectProfile?.archetypes);
+  const subjectIdentity = stringArray(subjectProfile?.identity);
+  const agenticTwins = stringArray(subjectProfile?.agentic_twins);
+  if (!subjectProfile || subjectTypes.length === 0 || subjectIdentity.length === 0) {
+    add(
+      findings,
+      'error',
+      'constitutional-subject-profile-unresolved',
+      'Every domain must classify its constitutional subject and identify its canonical identity through constitution.subject_profile.',
+      '/constitution/subject_profile',
+    );
+  }
+  if (subject !== undefined && !subjectIdentity.includes(subject)) {
+    add(
+      findings,
+      'error',
+      'constitutional-subject-profile-unresolved',
+      'constitution.subject_profile.identity must include constitution.subject.',
+      '/constitution/subject_profile/identity',
+    );
+  }
+  for (const reference of [...subjectTypes, ...archetypes]) {
+    if (!externalReference(reference)) {
+      add(
+        findings,
+        'error',
+        'constitutional-subject-profile-unresolved',
+        `Constitutional subject taxonomy reference ${reference} must be an IRI.`,
+        '/constitution/subject_profile',
+      );
+    }
+  }
+
+  const profileReferenceSets: Array<[string, Set<string>[]]> = [
+    ['identity', [controllers, linkedEntities, resources]],
+    ['purposes', [documents, resources]],
+    ['interests', [documents, resources]],
+    ['values', [documents, resources]],
+    ['rights', [rights]],
+    ['obligations', [documents, resources, rights]],
+    ['capabilities', [rights, resources, services]],
+    ['claims', [claims, resources]],
+    ['wallets', [wallets, resources]],
+    ['authorities', [controllers, linkedEntities]],
+    ['memory', [resources]],
+    ['evidence_policies', [documents, resources]],
+    ['evaluation_policies', [documents, resources]],
+    ['decision_policies', [documents, resources]],
+    ['settlement_policies', [documents, resources]],
+    ['governance', [documents, resources]],
+    ['custodians', [controllers, linkedEntities]],
+    ['stewards', [controllers, linkedEntities]],
+    ['owners', [controllers, linkedEntities]],
+    ['beneficiaries', [controllers, linkedEntities]],
+    ['oracles', [agents, services, linkedEntities]],
+    ['agentic_twins', [agents, linkedEntities]],
+  ];
+  for (const [field, sets] of profileReferenceSets) {
+    for (const reference of stringArray(subjectProfile?.[field])) {
+      if (!resolvesReference(reference, ...sets)) {
+        add(
+          findings,
+          'error',
+          'constitutional-subject-profile-unresolved',
+          `Constitutional subject ${field} reference ${reference} does not resolve.`,
+          `/constitution/subject_profile/${field}`,
+        );
+      }
+    }
   }
 
   const controllerSummary =
@@ -377,6 +477,7 @@ function validateConstitution(
   const agentic =
     agents.size > 0 ||
     agentControllers.size > 0 ||
+    agenticTwins.length > 0 ||
     controllerSummary?.agent_controllers_allowed === true ||
     agentMode === 'bounded_evaluate' ||
     agentMode === 'bounded_execute';
@@ -630,7 +731,7 @@ function validateConstitution(
   if (aiMode && aiMode !== 'none') {
     const principles = stringArray(constitutionalAI?.principles);
     const appliesToAgents = stringArray(constitutionalAI?.applies_to_agents);
-    const constitutionalAgentIds = new Set([...agents, ...agentControllers]);
+    const constitutionalAgentIds = new Set([...agents, ...agentControllers, ...agenticTwins]);
     const auditRecord = constitutionalAI?.audit_record;
     const critiqueRequired = aiMode === 'critique_and_revise' || aiMode === 'hybrid';
     const decisionRequired = aiMode === 'policy_evaluate' || aiMode === 'hybrid';
@@ -667,6 +768,17 @@ function validateConstitution(
           'error',
           'constitutional-ai-incomplete',
           `Agent controller ${controller} must be bound to the constitutional-AI principles and procedures.`,
+          '/constitution/constitutional_ai/applies_to_agents',
+        );
+      }
+    }
+    for (const twin of agenticTwins) {
+      if (!appliesToAgents.includes(twin)) {
+        add(
+          findings,
+          'error',
+          'constitutional-ai-incomplete',
+          `Agentic twin ${twin} must be bound to the subject's constitutional-AI principles and procedures.`,
           '/constitution/constitutional_ai/applies_to_agents',
         );
       }
@@ -1017,17 +1129,29 @@ export function validateSemantics(
   inspectSecrets(document.frontmatter, findings);
   validateSections(document, findings);
   const documents = validateDocuments(document.frontmatter, findings);
-  const { rights, resources, services, agents, agentControllers } = validateAuthority(
-    document.frontmatter,
-    findings,
-  );
-  validateConstitution(
-    document.frontmatter,
-    documents,
+  const {
+    controllers,
+    rights,
     resources,
     services,
     agents,
     agentControllers,
+    linkedEntities,
+    claims,
+    wallets,
+  } = validateAuthority(document.frontmatter, findings);
+  validateConstitution(
+    document.frontmatter,
+    documents,
+    controllers,
+    rights,
+    resources,
+    services,
+    agents,
+    agentControllers,
+    linkedEntities,
+    claims,
+    wallets,
     findings,
   );
   const flows = validateFlows(document.frontmatter, rights, findings);

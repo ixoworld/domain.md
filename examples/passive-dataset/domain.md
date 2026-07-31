@@ -1,9 +1,9 @@
 ---
-version: "1.0.0-rc.2"
+version: "1.0.0-rc.3"
 kind: "domain.md"
 conformance:
-  spec_version: "1.0.0-rc.2"
-  schema: "urn:ixo:domain-md:schema:1.0.0-rc.2"
+  spec_version: "1.0.0-rc.3"
+  schema: "urn:ixo:domain-md:schema:1.0.0-rc.3"
   profile: "authoring_draft"
 document_revision: "0.1.0"
 name: "Public Biodiversity Dataset"
@@ -38,7 +38,32 @@ constitution:
   status: "not_applicable"
   reason: "This domain is a passive, read-only dataset index with no agents, automated controllers, executable governance, or state-changing capabilities."
   subject: "urn:uuid:423e4567-e89b-42d3-a456-426614174000"
-  type: "con:Constitution"
+  type: "con:OperationalConstitution"
+  subject_profile:
+    subject_types: [ "con:KnowledgeAsset", "con:InformationObject" ]
+    archetypes: [ "con:Verified" ]
+    identity: [ "urn:uuid:423e4567-e89b-42d3-a456-426614174000" ]
+    purposes: []
+    interests: []
+    values: []
+    rights: []
+    obligations: []
+    capabilities: []
+    claims: []
+    wallets: []
+    authorities: []
+    memory: []
+    evidence_policies: []
+    evaluation_policies: []
+    decision_policies: []
+    settlement_policies: []
+    governance: []
+    custodians: []
+    stewards: []
+    owners: []
+    beneficiaries: []
+    oracles: []
+    agentic_twins: []
 agent_default_mode:
   mode: "read_only"
   overrides: { move_value: false, issue_credentials: false, change_rights: false, change_rubrics: false }
@@ -92,4 +117,4 @@ Only public metadata and resource references may be published. The source datase
 ## Do's and Don'ts
 Read and cite public metadata. Never treat the index as authorization to alter source records.
 ## Changelog
-Initial passive rc.2 example.
+Initial passive rc.3 example.

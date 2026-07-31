@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:ixo:domain-md:schema:1.0.0-rc.2",
+  "$id": "urn:ixo:domain-md:schema:1.0.0-rc.3",
   "title": "IXO domain.md frontmatter",
-  "description": "Structural and profile-specific validation for domain.md 1.0.0-rc.2. Semantic and runtime conformance checks remain mandatory.",
+  "description": "Structural and profile-specific validation for domain.md 1.0.0-rc.3. Semantic and runtime conformance checks remain mandatory.",
   "type": "object",
   "required": [
     "version",
@@ -24,7 +24,7 @@
     "critical_do_not"
   ],
   "properties": {
-    "version": { "const": "1.0.0-rc.2" },
+    "version": { "const": "1.0.0-rc.3" },
     "kind": { "const": "domain.md" },
     "conformance": { "$ref": "#/$defs/conformance" },
     "document_revision": { "$ref": "#/$defs/nonEmptyString" },
@@ -377,8 +377,8 @@
       "type": "object",
       "required": ["spec_version", "schema", "profile"],
       "properties": {
-        "spec_version": { "const": "1.0.0-rc.2" },
-        "schema": { "const": "urn:ixo:domain-md:schema:1.0.0-rc.2" },
+        "spec_version": { "const": "1.0.0-rc.3" },
+        "schema": { "const": "urn:ixo:domain-md:schema:1.0.0-rc.3" },
         "profile": { "enum": ["authoring_draft", "persisted_draft", "anchored", "runtime"] }
       },
       "additionalProperties": false
@@ -390,7 +390,7 @@
         "id": { "$ref": "#/$defs/draftId" },
         "iid": { "anyOf": [{ "$ref": "#/$defs/did" }, { "type": "null" }] },
         "type": {
-          "enum": ["dao", "organisation", "project", "asset", "deed", "protocol", "investment", "oracle", "service", "dataset", "device", "place", "portfolio", "marketplace", "pod", "claim_collection", "custom"]
+          "enum": ["dao", "organisation", "person", "project", "asset", "commodity", "financial_instrument", "property_right", "agreement", "deed", "work", "protocol", "investment", "oracle", "service", "claim", "credential", "evidence", "decision", "outcome", "event", "process", "relationship", "information_object", "normative_object", "capability", "biological_entity", "network", "dataset", "device", "place", "portfolio", "marketplace", "pod", "claim_collection", "custom"]
         },
         "class": { "anyOf": [{ "$ref": "#/$defs/did" }, { "type": "null" }] },
         "class_binding": {
@@ -469,12 +469,13 @@
     },
     "constitution": {
       "type": "object",
-      "required": ["status", "reason", "subject", "type"],
+      "required": ["status", "reason", "subject", "type", "subject_profile"],
       "properties": {
         "status": { "enum": ["not_applicable", "draft", "adopted", "in_force", "suspended", "superseded"] },
         "reason": { "anyOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }] },
         "subject": { "$ref": "#/$defs/draftId" },
         "type": { "$ref": "#/$defs/uri" },
+        "subject_profile": { "$ref": "#/$defs/constitutionalSubjectProfile" },
         "legal_effect": { "$ref": "#/$defs/legalEffect" },
         "norms": { "$ref": "#/$defs/stringArray" },
         "instruments": {
@@ -515,6 +516,76 @@
           }
         }
       ],
+      "additionalProperties": false
+    },
+    "constitutionalSubjectProfile": {
+      "type": "object",
+      "required": [
+        "subject_types",
+        "archetypes",
+        "identity",
+        "purposes",
+        "interests",
+        "values",
+        "rights",
+        "obligations",
+        "capabilities",
+        "claims",
+        "wallets",
+        "authorities",
+        "memory",
+        "evidence_policies",
+        "evaluation_policies",
+        "decision_policies",
+        "settlement_policies",
+        "governance",
+        "custodians",
+        "stewards",
+        "owners",
+        "beneficiaries",
+        "oracles",
+        "agentic_twins"
+      ],
+      "properties": {
+        "subject_types": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/uri" }
+        },
+        "archetypes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/uri" }
+        },
+        "identity": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "purposes": { "$ref": "#/$defs/stringArray" },
+        "interests": { "$ref": "#/$defs/stringArray" },
+        "values": { "$ref": "#/$defs/stringArray" },
+        "rights": { "$ref": "#/$defs/stringArray" },
+        "obligations": { "$ref": "#/$defs/stringArray" },
+        "capabilities": { "$ref": "#/$defs/stringArray" },
+        "claims": { "$ref": "#/$defs/stringArray" },
+        "wallets": { "$ref": "#/$defs/stringArray" },
+        "authorities": { "$ref": "#/$defs/stringArray" },
+        "memory": { "$ref": "#/$defs/stringArray" },
+        "evidence_policies": { "$ref": "#/$defs/stringArray" },
+        "evaluation_policies": { "$ref": "#/$defs/stringArray" },
+        "decision_policies": { "$ref": "#/$defs/stringArray" },
+        "settlement_policies": { "$ref": "#/$defs/stringArray" },
+        "governance": { "$ref": "#/$defs/stringArray" },
+        "custodians": { "$ref": "#/$defs/stringArray" },
+        "stewards": { "$ref": "#/$defs/stringArray" },
+        "owners": { "$ref": "#/$defs/stringArray" },
+        "beneficiaries": { "$ref": "#/$defs/stringArray" },
+        "oracles": { "$ref": "#/$defs/stringArray" },
+        "agentic_twins": { "$ref": "#/$defs/stringArray" }
+      },
       "additionalProperties": false
     },
     "legalEffect": {

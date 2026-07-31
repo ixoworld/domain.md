@@ -130,6 +130,15 @@ function valueMatches(value: unknown, type: ParameterDefinition['type']): boolea
   return typeof value === type;
 }
 
+function replaceExactString(value: unknown, before: string, after: string): unknown {
+  if (value === before) return after;
+  if (Array.isArray(value)) return value.map((item) => replaceExactString(item, before, after));
+  if (!isRecord(value)) return value;
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [key, replaceExactString(item, before, after)]),
+  );
+}
+
 function substitute(
   value: unknown,
   parameters: Record<string, unknown>,
@@ -242,16 +251,25 @@ function renderMarkdownTemplate(
   }
   delete frontmatter['x-template'];
   const used = new Set<string>();
-  const renderedFrontmatter = substitute(frontmatter, parameters, allowed, used) as DomainRecord;
+  const substitutedFrontmatter = substitute(frontmatter, parameters, allowed, used) as DomainRecord;
+  const originalSubject =
+    isRecord(substitutedFrontmatter.domain) && typeof substitutedFrontmatter.domain.id === 'string'
+      ? substitutedFrontmatter.domain.id
+      : undefined;
+  const draftSubject = `urn:uuid:${draftId}`;
+  const renderedFrontmatter =
+    originalSubject === undefined
+      ? substitutedFrontmatter
+      : (replaceExactString(substitutedFrontmatter, originalSubject, draftSubject) as DomainRecord);
   if (isRecord(renderedFrontmatter.domain)) {
-    renderedFrontmatter.domain.id = `urn:uuid:${draftId}`;
+    renderedFrontmatter.domain.id = draftSubject;
     renderedFrontmatter.domain.iid = null;
     renderedFrontmatter.domain.type = derivedType;
     renderedFrontmatter.domain.class = expectedProtocol;
     renderedFrontmatter.domain.status = 'draft';
   }
   if (isRecord(renderedFrontmatter.constitution))
-    renderedFrontmatter.constitution.subject = `urn:uuid:${draftId}`;
+    renderedFrontmatter.constitution.subject = draftSubject;
   renderedFrontmatter.version = SPEC_VERSION;
   if (isRecord(renderedFrontmatter.conformance))
     renderedFrontmatter.conformance.profile = 'authoring_draft';
