@@ -27,7 +27,7 @@ function decodeInput(input: string | Uint8Array): string {
   if (input[0] === 0xef && input[1] === 0xbb && input[2] === 0xbf)
     throw new JsonFailure('capsule-encoding', 'UTF-8 byte-order marks are forbidden.', '/', 0);
   try {
-    return new TextDecoder('utf-8', { fatal: true }).decode(input);
+    return new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(input);
   } catch {
     throw new JsonFailure('capsule-encoding', 'Input must be valid UTF-8.', '/', 0);
   }

@@ -3,6 +3,7 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   entry: [
     'src/index.ts',
+    'src/workers.ts',
     'src/cli.ts',
     'src/spec.ts',
     'src/templates/index.ts',

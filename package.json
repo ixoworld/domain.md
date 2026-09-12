@@ -20,11 +20,16 @@
     "examples:check": "tsx scripts/check-examples.ts",
     "package:check": "npm run package:check --workspace @ixo/domain.md",
     "package:smoke": "tsx scripts/package-smoke.ts",
-    "ci": "npm run format:check && npm run lint && npm run typecheck && npm run spec:check && npm run test:coverage && npm run build && npm run examples:check && npm run package:check && npm run package:smoke"
+    "ci": "npm run validators:check && npm run format:check && npm run lint && npm run typecheck && npm run spec:check && npm run test:coverage && npm run build && npm run examples:check && npm run package:check && npm run package:smoke",
+    "validators:generate": "node --import tsx scripts/generate-validators.ts",
+    "validators:check": "node --import tsx scripts/generate-validators.ts --check"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "26.1.1",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "esbuild": "0.28.1",
     "eslint": "10.7.0",
     "prettier": "3.9.5",
     "tsx": "4.23.1",

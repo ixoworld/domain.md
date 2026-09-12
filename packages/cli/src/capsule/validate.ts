@@ -1,8 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import type { Ajv as AjvCore, ErrorObject, Options } from 'ajv';
-import Ajv2020Import, { type ValidateFunction } from 'ajv/dist/2020.js';
-import addFormatsImport from 'ajv-formats';
+import type { ErrorObject } from 'ajv';
 import { CID } from 'multiformats/cid';
 import { sha256 } from 'multiformats/hashes/sha2';
 
@@ -11,8 +9,8 @@ import {
   ORACLE_CAPSULE_EXTERNAL_CHECKS,
   ORACLE_CAPSULE_LIMITS,
 } from '../constants.js';
-import { getOracleCapsuleSchema, getOracleCapsuleSourceLockSchema } from '../spec.js';
-import type { DomainRecord, Finding, SourceLocation } from '../types.js';
+import validators from '../compiled-validators.js';
+import type { Finding, SourceLocation } from '../types.js';
 import { oracleCapsuleReleaseDigest } from './canonical.js';
 import { parseCapsuleJson } from './json.js';
 import type {
@@ -22,28 +20,6 @@ import type {
   JsonValue,
   StrictJsonDocument,
 } from './types.js';
-
-const Ajv2020 = Ajv2020Import as unknown as new (options?: Options) => AjvCore;
-const addFormats = addFormatsImport as unknown as (ajv: AjvCore) => AjvCore;
-
-function compile(schema: DomainRecord): ValidateFunction {
-  const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false });
-  addFormats(ajv);
-  return ajv.compile(schema);
-}
-
-let manifestValidator: ValidateFunction | undefined;
-let lockValidator: ValidateFunction | undefined;
-
-function validateManifestSchema(): ValidateFunction {
-  manifestValidator ??= compile(getOracleCapsuleSchema());
-  return manifestValidator;
-}
-
-function validateLockSchema(): ValidateFunction {
-  lockValidator ??= compile(getOracleCapsuleSourceLockSchema());
-  return lockValidator;
-}
 
 function isRecord(value: unknown): value is Record<string, JsonValue> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -377,9 +353,9 @@ function validateSourceLock(
     return;
   }
   const lockDocument = parsed.document;
-  const valid = validateLockSchema()(lockDocument.value);
+  const valid = validators.sourceLock(lockDocument.value);
   if (!valid) {
-    addSchemaFindings(findings, lockDocument, validateLockSchema().errors, 'Source lock schema');
+    addSchemaFindings(findings, lockDocument, validators.sourceLock.errors, 'Source lock schema');
     return;
   }
   if (!isRecord(lockDocument.value)) return;
@@ -523,7 +499,7 @@ export function validateOracleCapsule(
   const findings = [...parsed.findings];
   if (options.expectedIdentity)
     validateExpectedIdentity(input, options.expectedIdentity, parsed.document, findings);
-  const validator = validateManifestSchema();
+  const validator = validators.manifest;
   if (!validator(parsed.document.value))
     addSchemaFindings(findings, parsed.document, validator.errors, 'Manifest schema');
   if (isRecord(parsed.document.value)) {

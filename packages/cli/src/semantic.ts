@@ -1,9 +1,5 @@
-import type { Ajv as AjvCore, Options } from 'ajv';
-import Ajv2020Import, { type ValidateFunction } from 'ajv/dist/2020.js';
-import addFormatsImport from 'ajv-formats';
-
 import { CANONICAL_SECTIONS, KNOWN_TOP_LEVEL_KEYS } from './constants.js';
-import { getSchema } from './spec.js';
+import validators from './compiled-validators.js';
 import type {
   ConformanceProfile,
   DomainDocument,
@@ -14,21 +10,7 @@ import type {
 
 const AUTHOR_PLACEHOLDER = /\{\{[^{}\n]+\}\}/;
 const PUBLISH_PLACEHOLDER = /<<FILL_AT_PUBLISH:[A-Za-z0-9_.-]+>>/;
-const Ajv2020 = Ajv2020Import as unknown as new (options?: Options) => AjvCore;
-const addFormats = addFormatsImport as unknown as (ajv: AjvCore) => AjvCore;
-
-function compileSchema(): ValidateFunction {
-  const ajv = new Ajv2020({
-    allErrors: true,
-    strict: true,
-    strictRequired: false,
-    strictTypes: false,
-  });
-  addFormats(ajv);
-  return ajv.compile(getSchema());
-}
-
-const validateSchema = compileSchema();
+const validateSchema = validators.domain;
 
 function isRecord(value: unknown): value is DomainRecord {
   return typeof value === 'object' && value !== null && !Array.isArray(value);

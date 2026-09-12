@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add a Workers `nodejs_compat` export for shared domain and capsule validation without filesystem reads or dynamic schema compilation.
+- Generate schema validators ahead of time and verify generated-source drift in CI.
+
 All notable package and specification changes are recorded here. Package versions and specification
 versions are intentionally independent.
 
