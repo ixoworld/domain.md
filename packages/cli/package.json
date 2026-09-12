@@ -54,6 +54,10 @@
     "./capsule": {
       "types": "./dist/capsule/index.d.ts",
       "import": "./dist/capsule/index.js"
+    },
+    "./workers": {
+      "types": "./src/workers.ts",
+      "import": "./src/workers.ts"
     }
   },
   "files": [
@@ -61,7 +65,8 @@
     "dist",
     "README.md",
     "LICENSE",
-    "NOTICE"
+    "NOTICE",
+    "src"
   ],
   "scripts": {
     "build": "tsup",

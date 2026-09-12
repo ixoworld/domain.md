@@ -121,3 +121,14 @@ under `examples/`.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and [RELEASING.md](RELEASING.md).
 This project is licensed under Apache-2.0.
+
+## Cloudflare Workers
+
+Use `@ixo/domain.md/workers` with Workers `nodejs_compat` for `lint`, `parseDomain`,
+strict capsule parsing and capsule inspection. This entry does not load filesystem
+assets, network/template resolvers or runtime schema compilation. The package
+ships source for Worker bundlers and shares the CLI's semantic checks.
+
+Schemas compile ahead of time with `npm run validators:generate`;
+`npm run validators:check` detects drift. Static validation and capsule inspection
+still do not activate a release or establish live authority.
