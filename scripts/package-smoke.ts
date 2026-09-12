@@ -1,3 +1,4 @@
+import { build } from 'esbuild';
 import { execFile as execFileCallback } from 'node:child_process';
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -47,14 +48,23 @@ try {
     'assets/rules.json',
     'dist/cli.js',
     'dist/index.js',
+    'src/workers.ts',
+    'src/compiled-validators.js',
     'LICENSE',
     'NOTICE',
     'README.md',
   ]) {
     if (!paths.has(expected)) throw new Error(`Packed package is missing ${expected}.`);
   }
-  if ([...paths].some((path) => path.startsWith('src/') || path.startsWith('test/'))) {
-    throw new Error('Packed package contains development source or tests.');
+  if (
+    [...paths].some(
+      (path) =>
+        path.startsWith('test/') ||
+        path.startsWith('scripts/') ||
+        /\.(test|spec)\.[jt]s$/.test(path),
+    )
+  ) {
+    throw new Error('Packed package contains development scripts or tests.');
   }
 
   await writeFile(
@@ -81,6 +91,23 @@ try {
     stat(join(temporary, 'node_modules/.bin', `domain.md${shimSuffix}`)),
     stat(join(temporary, 'node_modules/.bin', `domainmd${shimSuffix}`)),
   ]);
+
+  const workerBundle = await build({
+    stdin: { contents: "export * from '@ixo/domain.md/workers';", resolveDir: temporary },
+    bundle: true,
+    write: false,
+    platform: 'node',
+    format: 'esm',
+    metafile: true,
+  });
+  const workerImports = Object.values(workerBundle.metafile.inputs).flatMap((input) =>
+    input.imports.map((entry) => entry.path),
+  );
+  if (
+    workerImports.includes('node:fs') ||
+    workerImports.some((path) => path.includes('ajv/dist/compile'))
+  )
+    throw new Error('Packed Workers export includes filesystem or schema compilation.');
 
   const smokeProgram = [
     "import * as api from '@ixo/domain.md';",
