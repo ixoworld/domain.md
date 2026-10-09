@@ -1,4 +1,7 @@
-export const PACKAGE_VERSION = '0.3.0';
+import packageJson from '../package.json' with { type: 'json' };
+
+/** The published package version; semantic-release sets it at release time. */
+export const PACKAGE_VERSION: string = packageJson.version;
 export const SPEC_VERSION = '1.0.0-rc.3';
 export const SCHEMA_ID = `urn:ixo:domain-md:schema:${SPEC_VERSION}`;
 export const TEMPLATE_SCHEMA_ID = `urn:ixo:domain-md:template-manifest-schema:${SPEC_VERSION}`;

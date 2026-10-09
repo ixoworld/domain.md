@@ -142,8 +142,11 @@ async function assertInputs(): Promise<{
     throw new Error('specification source does not declare the configured version');
   }
   const packageJson = JSON.parse(packageManifest) as { version?: string };
-  if (!runtimeConstants.includes(`PACKAGE_VERSION = '${packageJson.version}'`)) {
-    throw new Error('runtime package version does not match packages/cli/package.json');
+  if (!packageJson.version || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(packageJson.version)) {
+    throw new Error('packages/cli/package.json version is not a semantic version');
+  }
+  if (!runtimeConstants.includes("from '../package.json'")) {
+    throw new Error('runtime PACKAGE_VERSION must be derived from packages/cli/package.json');
   }
   if (
     !runtimeConstants.includes(`SPEC_VERSION = '${SPEC_VERSION}'`) ||

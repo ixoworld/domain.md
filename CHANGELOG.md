@@ -1,5 +1,9 @@
 # Changelog
 
+Package releases are cut automatically from `main` and their notes are published on
+[GitHub releases](https://github.com/ixoworld/domain.md/releases). This file records specification
+changes.
+
 ## Unreleased
 
 - Add a Workers `nodejs_compat` export for shared domain and capsule validation without filesystem reads or dynamic schema compilation.
