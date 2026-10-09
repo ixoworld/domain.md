@@ -43,6 +43,9 @@ pull request's own commits are analysed instead, so keep those conventional too.
 
 - `workflow_dispatch` on the Release workflow re-runs the release step for the current `main`; it is
   idempotent and publishes nothing if the latest commit is already released.
-- A dry run locally: `GITHUB_TOKEN=$(gh auth token) npx -p semantic-release@25.0.9 -p @semantic-release/exec@7.0.0 -p conventional-changelog-conventionalcommits@10.4.1 semantic-release --dry-run --no-ci`.
+- A dry run locally: `npm ci --prefix .github/release --ignore-scripts` once, then
+  `GITHUB_TOKEN=$(gh auth token) node .github/release/node_modules/semantic-release/bin/semantic-release.js --dry-run --no-ci`.
+- The release tooling is pinned in `.github/release/package.json` and its lockfile, so the publish job never
+  installs unpinned packages.
 - Before the first automated release the repository carries the tag `v0.2.0` on the last manually reviewed
   state, so the first release is `0.3.0`, the package contract announced in `CHANGELOG.md`.
