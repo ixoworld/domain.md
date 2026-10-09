@@ -20,7 +20,7 @@ npx domainmd lint ./domain.md
 npx domainmd spec
 ```
 
-The package has not been published yet. During development:
+The package is published on npm as `@ixo/domain.md`. During development:
 
 ```bash
 npm ci
