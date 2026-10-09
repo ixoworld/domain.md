@@ -35,6 +35,6 @@
     ],
     ["@semantic-release/npm", { "pkgRoot": "packages/cli" }],
     ["@semantic-release/exec", { "prepareCmd": "npm run build --workspace @ixo/domain.md" }],
-    "@semantic-release/github"
+    ["@semantic-release/github", { "failTitle": false }]
   ]
 }
