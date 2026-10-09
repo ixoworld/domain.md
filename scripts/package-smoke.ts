@@ -14,6 +14,9 @@ const npmCli = (() => {
   return value;
 })();
 const temporary = await mkdtemp(join(tmpdir(), 'domain-md-pack-'));
+const expectedVersion = (
+  JSON.parse(await readFile(join(root, 'packages/cli/package.json'), 'utf8')) as { version: string }
+).version;
 
 interface PackResult {
   filename: string;
@@ -79,7 +82,8 @@ try {
   const installedPackage = JSON.parse(
     await readFile(join(temporary, 'node_modules/@ixo/domain.md/package.json'), 'utf8'),
   ) as { bin?: Record<string, string>; version?: string };
-  if (installedPackage.version !== '0.3.0') throw new Error('Packed package version drifted.');
+  if (installedPackage.version !== expectedVersion)
+    throw new Error('Packed package version drifted.');
   if (
     installedPackage.bin?.['domain.md'] !== './dist/cli.js' ||
     installedPackage.bin.domainmd !== './dist/cli.js'
@@ -124,7 +128,7 @@ try {
 
   const cli = join(temporary, 'node_modules/@ixo/domain.md/dist/cli.js');
   const version = await execFile(process.execPath, [cli, '--version'], { cwd: temporary });
-  if (version.stdout.trim() !== '0.3.0') throw new Error('Packed CLI version mismatch.');
+  if (version.stdout.trim() !== expectedVersion) throw new Error('Packed CLI version mismatch.');
   const schema = await execFile(process.execPath, [cli, 'schema'], { cwd: temporary });
   if (!schema.stdout.includes('urn:ixo:domain-md:schema:1.0.0-rc.3'))
     throw new Error('Packed CLI schema mismatch.');

@@ -5,6 +5,8 @@ import { spawn } from 'node:child_process';
 
 import { describe, expect, it } from 'vitest';
 
+import { PACKAGE_VERSION } from '../src/constants.js';
+
 import {
   CONSTITUTIONAL_ARCHETYPES,
   CONSTITUTIONAL_SUBJECT_TYPES,
@@ -79,7 +81,7 @@ describe('public API', () => {
 
 describe('CLI', () => {
   it('reports version and emits schema', async () => {
-    expect((await runCli(['--version'])).stdout).toContain('0.3.0');
+    expect((await runCli(['--version'])).stdout).toContain(PACKAGE_VERSION);
     const schema = await runCli(['schema']);
     expect(schema.code).toBe(0);
     expect(JSON.parse(schema.stdout)).toHaveProperty('$id');

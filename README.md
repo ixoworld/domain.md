@@ -28,7 +28,8 @@ npm run build
 node packages/cli/dist/cli.js lint examples/project-authoring/domain.md
 ```
 
-The unreleased public package version is `0.3.0`; the bundled specification version is `1.0.0-rc.3`. They are
+Package versions are cut automatically from `main` by semantic-release and published to npm (see
+[RELEASING.md](RELEASING.md)); the bundled specification version is `1.0.0-rc.3`. They are
 intentionally independent.
 
 ## Library API
