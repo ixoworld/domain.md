@@ -81,7 +81,7 @@
     "ajv-formats": "3.0.1",
     "citty": "0.2.2",
     "ipaddr.js": "2.4.0",
-    "multiformats": "14.0.4",
+    "multiformats": "14.0.5",
     "remark-frontmatter": "5.0.0",
     "remark-parse": "11.0.0",
     "unified": "11.0.5",
